@@ -1,0 +1,95 @@
+---
+import "../styles/global.css";
+
+const site = "https://average-time-calculator.com";
+const { title, description, canonical = `${site}/`, schema, noindex = false } = Astro.props;
+
+const navItems = [
+  { href: "#tool", label: "Tool" },
+  { href: "#formula", label: "Formula" },
+  { href: "#how-to-use", label: "How to Use" },
+  { href: "#use-cases", label: "Use Cases" },
+  { href: "#advanced", label: "Advanced" },
+  { href: "#metrics", label: "Metrics" },
+  { href: "#accuracy", label: "Accuracy" },
+  { href: "#spreadsheet-formulas", label: "Spreadsheet" },
+  { href: "#faq", label: "FAQ" },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#047857" />
+    <meta name="description" content={description} />
+    <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="Average Time Calculator" />
+    <meta property="og:image" content={`${site}/og-image.png`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="Average Time Calculator tool preview" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:updated_time" content="2026-08-13" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${site}/og-image.png`} />
+    <meta name="twitter:image:alt" content="Average Time Calculator tool preview" />
+    <title>{title}</title>
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <header class="sticky top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur">
+      <div class="page-shell flex h-16 items-center justify-between">
+        <a href="/" class="font-semibold tracking-[-0.02em] text-zinc-950">
+          Average Time Calculator
+        </a>
+        <nav aria-label="Page sections" class="hidden items-center gap-6 text-sm font-medium text-zinc-600 sm:flex">
+          {navItems.map((item) => (
+            <a href={item.href} class="transition-colors hover:text-emerald-700">{item.label}</a>
+          ))}
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <slot />
+    </main>
+
+    <footer class="border-t border-zinc-200 bg-white">
+      <div class="page-shell flex flex-col gap-6 py-8 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_auto] lg:gap-8">
+          <div>
+            <p class="font-semibold text-zinc-900">Average Time Calculator</p>
+            <p class="mt-2 text-xs leading-relaxed">
+              Free, private time tool for durations, clock times, weighted averages, and running averages. All calculations happen in your browser.
+            </p>
+          </div>
+          <div>
+            <nav aria-label="Footer sections" class="flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium text-zinc-600">
+              {navItems.map((item) => (
+                <a href={item.href} class="transition-colors hover:text-emerald-700">{item.label}</a>
+              ))}
+              <a href="#industry-use-cases" class="transition-colors hover:text-emerald-700">Industries</a>
+              <a href="#glossary" class="transition-colors hover:text-emerald-700">Glossary</a>
+              <a href="#about" class="transition-colors hover:text-emerald-700">About</a>
+              <a href="#privacy" class="transition-colors hover:text-emerald-700">Privacy</a>
+            </nav>
+            <p class="mt-4 text-xs">Last updated: August 13, 2026</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+  </body>
+</html>

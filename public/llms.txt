@@ -1,0 +1,17 @@
+# Average Time Calculator
+
+Average Time Calculator is a free, private browser tool for averaging time
+values. It supports elapsed durations, times of day, weighted averages, and
+running averages.
+
+## Home
+
+- Average Time Calculator: https://average-time-calculator.com/
+
+## Key Concepts
+
+- Duration average: sum all elapsed times and divide by the count.
+- Clock time average: use circular mean so values crossing midnight are correct.
+- Weighted average: sum time multiplied by weight, then divide by total weight.
+- Running average: cumulative mean after each value in a list.
+- Result context: average, total, count, min, max, median, and range or spread.

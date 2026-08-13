@@ -1,0 +1,1399 @@
+---
+import Layout from "../layouts/Layout.astro";
+import AverageTimeTool from "../components/AverageTimeTool.astro";
+
+const title = "Average Time Calculator - Free Duration & Clock Time";
+const description =
+  "Calculate average time from durations or clock times. Bulk input, weighted & running averages, min/max/median, and CSV export. Midnight-safe and free.";
+
+const faqs = [
+  {
+    question: "What is an average time calculator?",
+    answer:
+      "It is a tool that takes a set of time values and returns their mean. It also shows the total, count, minimum, maximum, median, and range so you can check the result instead of trusting a single number.",
+  },
+  {
+    question: "What is the difference between duration and clock time?",
+    answer:
+      "A duration is an amount of elapsed time, such as 1 minute 30 seconds. A clock time is a point in the day, such as 11:45 PM. The two need different math when values cross midnight.",
+  },
+  {
+    question: "How do I choose between duration and clock time?",
+    answer:
+      "Use duration mode when each value measures how long something took, such as lap times, commutes, workouts, or handling time. Use clock time mode when each value is a point in the day, such as bedtime, arrival time, or shift start time.",
+  },
+  {
+    question: "How do I calculate average time in Excel or Google Sheets?",
+    answer:
+      "For durations stored as time values, use =AVERAGE(range). For weighted time, use =SUMPRODUCT(times,weights)/SUM(weights). For clock times, use a circular-mean formula that averages sine and cosine values over a 24-hour period. This page reproduces those calculations automatically.",
+  },
+  {
+    question: "How do you calculate average time?",
+    answer:
+      "Convert every value to a common unit such as seconds, add them together, and divide by the number of values. This page does that instantly and supports hours, minutes, seconds, milliseconds, and mixed formats.",
+  },
+  {
+    question: "What is the average time formula?",
+    answer:
+      "For durations, use total seconds divided by the number of values. For clock times, convert each time to an angle on a 24-hour circle, average the sine and cosine components, and convert the resulting angle back to a time.",
+  },
+  {
+    question: "How do I calculate average handling time?",
+    answer:
+      "Paste call durations in duration mode. If some rows represent larger groups of calls, enable weighted average and add a weight after each time. Compare the median when a few unusually long calls may distort the mean.",
+  },
+  {
+    question: "How do you average times that cross midnight?",
+    answer:
+      "For clock times, the page uses circular averaging. For example, 23:50 and 00:10 average close to 00:00, not 12:00. This is essential for sleep times, arrival times, and shift times.",
+  },
+  {
+    question: "What formats can I paste?",
+    answer:
+      "You can paste HH:MM:SS, MM:SS, seconds, 1h 23m 45s, 1.5h, 45.5m, and 11:45 PM. In weighted mode, add a comma or tab followed by the weight for each value.",
+  },
+  {
+    question: "Can I calculate a weighted average time?",
+    answer:
+      "Yes. Turn on weighted average and enter each value with a weight, such as 4m 20s,3 or 4m 20s<TAB>3. The result is the total weighted time divided by the total weight.",
+  },
+  {
+    question: "Can I calculate a running average time?",
+    answer:
+      "Yes. Turn on running average to see the cumulative average after the first value, second value, third value, and so on.",
+  },
+  {
+    question: "What are min, max, median, and range in time data?",
+    answer:
+      "Min is the shortest value, max is the longest, median is the middle value after sorting, and range is the difference between max and min.",
+  },
+  {
+    question: "Can I export results?",
+    answer:
+      "Yes. Use Copy result or Download CSV. The download includes the mode, average, total, count, min, max, median, and range.",
+  },
+  {
+    question: "Is my data stored?",
+    answer:
+      "No. The page runs entirely in your browser. Time values are never uploaded, stored, or sent to a server.",
+  },
+  {
+    question: "Can I average mixed time formats in the same list?",
+    answer:
+      "Yes. You can mix HH:MM:SS, MM:SS, seconds, decimal hours, and unit expressions such as 1h 23m 45s. Each line is converted to seconds before calculating the average.",
+  },
+  {
+    question: "What is the formula for a weighted average time?",
+    answer:
+      "Multiply each time by its weight, add all weighted values together, then divide by the total weight. For example, 4m 20s,3 means this value represents three observations, not one.",
+  },
+  {
+    question: "When should I use median instead of average?",
+    answer:
+      "Use the median when one very long or very short value would distort the mean. For example, one unusually slow commute should not hide the typical daily travel time.",
+  },
+  {
+    question: "How do I calculate average pace or speed from lap times?",
+    answer:
+      "Pace and speed need different treatment from elapsed time. To compare average lap speed, first convert each lap time to speed, then average the speed values. If you want average lap duration, average the times directly.",
+  },
+  {
+    question: "Does the calculator handle milliseconds?",
+    answer:
+      "Yes. The parser accepts milliseconds in formats such as 1:30.450, 90.25s, and 1.5s. It also shows milliseconds in the result when needed.",
+  },
+  {
+    question: "Can I use this for dates or time zones?",
+    answer:
+      "No. This tool is designed for time durations and clock times within a single day. It does not add days, convert time zones, or account for daylight saving time.",
+  },
+  {
+    question: "Why does clock time use circular average?",
+    answer:
+      "A clock wraps around every 24 hours. Values near midnight are close together on a circle even though their hour numbers look far apart. Circular averaging keeps that geometry, so 23:50 and 00:10 average near 00:00.",
+  },
+];
+
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://average-time-calculator.com/#organization",
+      name: "Average Time Calculator",
+      url: "https://average-time-calculator.com/",
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://average-time-calculator.com/#webpage",
+      url: "https://average-time-calculator.com/",
+      name: "Average Time Calculator",
+      description,
+      inLanguage: "en",
+      datePublished: "2026-08-13",
+      dateModified: "2026-08-13",
+      mainEntity: {
+        "@id": "https://average-time-calculator.com/#app",
+      },
+      about: {
+        "@id": "https://average-time-calculator.com/#app",
+      },
+      primaryImageOfPage: {
+        "@type": "ImageObject",
+        url: "https://average-time-calculator.com/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://average-time-calculator.com/#app",
+      name: "Average Time Calculator",
+      url: "https://average-time-calculator.com/",
+      description,
+      applicationCategory: "UtilityApplication",
+      operatingSystem: "Any",
+      browserRequirements: "Requires JavaScript",
+      isAccessibleForFree: true,
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      featureList: [
+        "Calculate average time",
+        "Duration average",
+        "Clock time average",
+        "Weighted average",
+        "Running average",
+        "Min, max, median, and range",
+        "Copy result",
+        "Download CSV",
+        "Import CSV",
+        "Shareable result link",
+      ],
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: faq.answer,
+        },
+      })),
+    },
+    {
+      "@type": "TechArticle",
+      "@id": "https://average-time-calculator.com/#article",
+      headline: "How to Calculate Average Time from Durations and Clock Times",
+      description,
+      articleSection: "Average time calculator",
+      inLanguage: "en",
+      datePublished: "2026-08-13",
+      dateModified: "2026-08-13",
+      author: {
+        "@id": "https://average-time-calculator.com/#organization",
+      },
+      publisher: {
+        "@id": "https://average-time-calculator.com/#organization",
+      },
+      about: {
+        "@id": "https://average-time-calculator.com/#app",
+      },
+      mainEntityOfPage: {
+        "@id": "https://average-time-calculator.com/#webpage",
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://average-time-calculator.com/#website",
+      url: "https://average-time-calculator.com/",
+      name: "Average Time Calculator",
+      description,
+      inLanguage: "en",
+      publisher: {
+        "@id": "https://average-time-calculator.com/#organization",
+      },
+    },
+  ],
+};
+---
+
+<Layout
+  title={title}
+  description={description}
+  canonical="https://average-time-calculator.com/"
+  schema={schema}
+>
+  <section class="section-pad pb-20 pt-12 sm:pt-16">
+    <div class="page-shell">
+      <AverageTimeTool />
+    </div>
+  </section>
+
+  <section class="section-pad">
+    <div class="page-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.08em] text-emerald-700">
+          What is it?
+        </p>
+        <h2 class="mt-4 text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          What is an average time calculator?
+        </h2>
+        <div class="mt-6 rounded-lg border border-emerald-200 bg-emerald-50/60 p-6">
+          <p class="text-base leading-relaxed text-zinc-800">
+            An average time calculator finds the mean of a set of durations or clock times. For durations, convert each value to seconds, add them together, and divide by the count. For clock times, use circular averaging so values such as 23:50 and 00:10 average close to 00:00 instead of 12:00.
+          </p>
+        </div>
+      </div>
+      <div>
+        <table class="w-full overflow-hidden rounded-lg border border-zinc-200 text-left text-sm">
+          <thead class="bg-zinc-50 text-zinc-700">
+            <tr>
+              <th class="px-4 py-3 font-semibold">Input type</th>
+              <th class="px-4 py-3 font-semibold">Correct method</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-200 bg-white">
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Duration</td>
+              <td class="px-4 py-4 text-zinc-600">Sum all elapsed times, then divide by count.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Clock time</td>
+              <td class="px-4 py-4 text-zinc-600">Average the angles on a 24-hour circle.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="mt-4 rounded-lg border border-zinc-200 bg-white p-5">
+          <p class="text-sm font-semibold text-zinc-900">Why midnight changes the answer</p>
+          <div class="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+            <div class="rounded-md bg-rose-50 px-3 py-3 text-rose-700">
+              Plain math: 23:50 + 00:10 = 12:00
+            </div>
+            <div class="rounded-md bg-emerald-50 px-3 py-3 text-emerald-700">
+              Circular mean: 23:50 + 00:10 = 00:00
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-zinc-200 bg-white">
+    <div class="page-shell section-pad">
+      <div class="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+        <div>
+          <h2 class="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+            One tool for elapsed time and time of day.
+          </h2>
+          <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
+            Most average time calculators treat every value as a duration. That works for lap times, but it can give a wrong answer when you average clock times around midnight.
+          </p>
+        </div>
+        <div class="grid gap-6 sm:grid-cols-2">
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-lg font-semibold text-zinc-950">Duration average</h3>
+            <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+              Add all elapsed times together, then divide by the number of values. Use it for race laps, commute time, workouts, tasks, and customer handling time.
+            </p>
+            <p class="mt-5 font-mono text-sm text-emerald-700">1:30 + 1:25 + 1:35 = 1:30</p>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-lg font-semibold text-zinc-950">Clock time average</h3>
+            <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+              Use circular averaging to find the middle point of several clock times, even when they cross midnight. Use it for bedtimes, arrivals, and shift times.
+            </p>
+            <p class="mt-5 font-mono text-sm text-emerald-700">23:50 + 00:10 = 00:00</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-zinc-200 bg-white">
+    <div class="page-shell section-pad">
+      <div class="max-w-4xl">
+        <h2 class="text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          Why this calculator is built differently
+        </h2>
+        <p class="mt-5 max-w-3xl text-base leading-relaxed text-zinc-600">
+          Most time-average tools only handle elapsed durations. This page separates durations from times of day, shows supporting statistics, and keeps everything in the browser.
+        </p>
+      </div>
+      <div class="mt-10 overflow-x-auto rounded-lg border border-zinc-200">
+        <table class="w-full min-w-[680px] text-left text-sm">
+          <thead class="bg-zinc-50 text-zinc-700">
+            <tr>
+              <th class="px-4 py-3 font-semibold">What you need</th>
+              <th class="px-4 py-3 font-semibold">Typical time-average tool</th>
+              <th class="px-4 py-3 font-semibold">This calculator</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-200 bg-white">
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Duration or clock time</td>
+              <td class="px-4 py-4 text-zinc-600">Durations only, so midnight is often wrong.</td>
+              <td class="px-4 py-4 text-zinc-600">Both modes, with circular averaging for clock times.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Result context</td>
+              <td class="px-4 py-4 text-zinc-600">Usually one average, sometimes total and count.</td>
+              <td class="px-4 py-4 text-zinc-600">Average, total, count, min, max, median, and range or spread.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Advanced averages</td>
+              <td class="px-4 py-4 text-zinc-600">Rarely available.</td>
+              <td class="px-4 py-4 text-zinc-600">Weighted and running averages with examples and charts.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Bulk input</td>
+              <td class="px-4 py-4 text-zinc-600">Often split into hour, minute, and second fields.</td>
+              <td class="px-4 py-4 text-zinc-600">One textarea for mixed formats, paste, and CSV import.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Privacy</td>
+              <td class="px-4 py-4 text-zinc-600">May require sign-up, ads, or server-side processing.</td>
+              <td class="px-4 py-4 text-zinc-600">Free, private, no ads, and no data leaves the browser.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="formula" class="section-pad">
+    <div class="page-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+      <div>
+        <h2 class="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          The formula is simple. The edge cases are not.
+        </h2>
+        <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
+          For durations, convert everything to seconds, sum the values, and divide by the count. For clock times, map each value to an angle on a 24-hour circle and average the angles.
+        </p>
+      </div>
+      <div class="grid gap-4">
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <p class="text-sm font-semibold text-zinc-900">Duration average</p>
+          <p class="mt-3 font-mono text-sm leading-7 text-zinc-600">
+            Average = Total time / Number of values
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <p class="text-sm font-semibold text-zinc-900">Clock time average</p>
+          <p class="mt-3 text-sm leading-7 text-zinc-600">
+            Convert each time to an angle, average the sine and cosine values, then convert the resulting angle back to a time.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <p class="text-sm font-semibold text-zinc-900">Why midnight changes the answer</p>
+          <p class="mt-3 text-sm leading-7 text-zinc-600">
+            Plain arithmetic on 23:50 and 00:10 produces 12:00. Circular averaging correctly gives 00:00 because both values sit close together on the 24-hour clock.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="worked-examples" class="section-pad">
+    <div class="page-shell">
+      <div class="max-w-4xl">
+        <h2 class="text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          How to calculate average time, with examples
+        </h2>
+        <p class="mt-5 max-w-3xl text-base leading-relaxed text-zinc-600">
+          The same principle applies to both modes: convert every value to a common unit first. The difference is what happens after conversion. Duration data is measured on a straight line, while clock time is measured on a circle that wraps every 24 hours.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-6 lg:grid-cols-2">
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Duration example: four lap times</h3>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            Start with a small running log. Each lap is already written as minutes and seconds, but the calculation is easiest after converting everything to seconds.
+          </p>
+          <pre class="mt-3 overflow-x-auto rounded-lg bg-zinc-50 p-4 font-mono text-sm leading-7 text-zinc-800">1:32.40
+1:31.20
+1:33.10
+1:30.85</pre>
+          <table class="mt-4 w-full text-left text-sm">
+            <thead class="bg-zinc-50 text-zinc-700">
+              <tr>
+                <th class="px-3 py-2 font-semibold">Lap</th>
+                <th class="px-3 py-2 font-semibold">Seconds</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200">
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">1:32.40</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">92.40</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">1:31.20</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">91.20</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">1:33.10</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">93.10</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">1:30.85</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">90.85</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm leading-relaxed text-emerald-900">
+            <span class="font-semibold">Average = Total / Count</span><br />
+            367.55 seconds / 4 = 91.8875 seconds = <span class="font-mono">1:31.8875</span>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Clock time example: crossing midnight</h3>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            Two bedtimes sit close together on the clock even though their hour numbers look far apart.
+          </p>
+          <pre class="mt-3 overflow-x-auto rounded-lg bg-zinc-50 p-4 font-mono text-sm leading-7 text-zinc-800">23:50
+00:10</pre>
+          <table class="mt-4 w-full text-left text-sm">
+            <thead class="bg-zinc-50 text-zinc-700">
+              <tr>
+                <th class="px-3 py-2 font-semibold">Time</th>
+                <th class="px-3 py-2 font-semibold">Angle</th>
+                <th class="px-3 py-2 font-semibold">Interpretation</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200">
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">23:50</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">357.5°</td>
+                <td class="px-3 py-2 text-zinc-600">10 minutes before midnight</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">00:10</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">2.5°</td>
+                <td class="px-3 py-2 text-zinc-600">10 minutes after midnight</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm leading-relaxed text-emerald-900">
+            Average the angles on the circle, then convert the result back to a time:
+            <span class="font-mono">23:50 + 00:10 = 00:00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-10 grid gap-6 lg:grid-cols-2">
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Why the duration method works</h3>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            Elapsed time behaves like any other measurement. You can add the seconds without changing their meaning, then divide by the number of observations.
+          </p>
+          <p class="mt-3 font-mono text-sm leading-7 text-emerald-700">
+            Average duration = (t₁ + t₂ + ... + tₙ) / n
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Why the clock method is different</h3>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            A clock has no natural start point. Converting to angles and averaging sine and cosine preserves the fact that 23:50 and 00:10 are only 20 minutes apart.
+          </p>
+          <p class="mt-3 font-mono text-sm leading-7 text-emerald-700">
+            Mean angle = atan2(Σ sin θ, Σ cos θ)
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how-to-use" class="section-pad">
+    <div class="page-shell">
+      <div class="max-w-3xl">
+        <h2 class="text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          How to use the average time calculator
+        </h2>
+        <p class="mt-5 text-base leading-relaxed text-zinc-600">
+          The workflow is designed to be faster than a spreadsheet: paste, choose a mode, read the summary, and export.
+        </p>
+      </div>
+      <ol class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <li class="rounded-lg border border-zinc-200 bg-white p-6">
+          <p class="font-mono text-sm font-semibold text-emerald-700">01</p>
+          <h3 class="mt-4 text-base font-semibold text-zinc-950">Choose a mode</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            Select duration average for elapsed time or clock time average for times of day.
+          </p>
+        </li>
+        <li class="rounded-lg border border-zinc-200 bg-white p-6">
+          <p class="font-mono text-sm font-semibold text-emerald-700">02</p>
+          <h3 class="mt-4 text-base font-semibold text-zinc-950">Paste or import</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            Enter one time value per line, paste from a spreadsheet, or import a CSV file.
+          </p>
+        </li>
+        <li class="rounded-lg border border-zinc-200 bg-white p-6">
+          <p class="font-mono text-sm font-semibold text-emerald-700">03</p>
+          <h3 class="mt-4 text-base font-semibold text-zinc-950">Read the result</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            Review the average, total or spread, count, min, max, median, and range.
+          </p>
+        </li>
+        <li class="rounded-lg border border-zinc-200 bg-white p-6">
+          <p class="font-mono text-sm font-semibold text-emerald-700">04</p>
+          <h3 class="mt-4 text-base font-semibold text-zinc-950">Copy or share</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            Copy the summary, download CSV, or copy a shareable link with your current input.
+          </p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="supported-formats" class="section-pad">
+    <div class="page-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+      <div>
+        <h2 class="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          Supported time formats
+        </h2>
+        <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
+          The input parser is designed for real-world records. You can paste a column from Excel, a run log, a sleep tracker, or a call report without splitting each value into separate fields.
+        </p>
+      </div>
+      <div class="rounded-lg border border-zinc-200 bg-white">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-zinc-50 text-zinc-700">
+            <tr>
+              <th class="px-4 py-3 font-semibold">Format</th>
+              <th class="px-4 py-3 font-semibold">Example</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-200">
+            <tr>
+              <td class="px-4 py-3 font-mono text-zinc-900">HH:MM:SS</td>
+              <td class="px-4 py-3 font-mono text-zinc-600">1:30:45</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-mono text-zinc-900">MM:SS</td>
+              <td class="px-4 py-3 font-mono text-zinc-600">45:30</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-mono text-zinc-900">Seconds</td>
+              <td class="px-4 py-3 font-mono text-zinc-600">90s or 90</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-mono text-zinc-900">Decimal time</td>
+              <td class="px-4 py-3 font-mono text-zinc-600">1.5h or 45.5m</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-mono text-zinc-900">Compound units</td>
+              <td class="px-4 py-3 font-mono text-zinc-600">1h 23m 45s</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-mono text-zinc-900">Milliseconds</td>
+              <td class="px-4 py-3 font-mono text-zinc-600">1:30.450 or 90.25s</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-mono text-zinc-900">24-hour clock</td>
+              <td class="px-4 py-3 font-mono text-zinc-600">23:50</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-mono text-zinc-900">12-hour clock</td>
+              <td class="px-4 py-3 font-mono text-zinc-600">11:45 PM</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-mono text-zinc-900">Weighted syntax</td>
+              <td class="px-4 py-3 font-mono text-zinc-600">4m 20s,3 or 4m 20s&lt;TAB&gt;3</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="use-cases" class="border-t border-zinc-200 bg-white">
+    <div class="page-shell section-pad">
+      <div class="max-w-3xl">
+        <h2 class="text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          Built for the data you already have.
+        </h2>
+        <p class="mt-5 max-w-2xl text-base leading-relaxed text-zinc-600">
+          You can paste records from a spreadsheet, a run log, a call report, or a sleep tracker. The input accepts common time formats without making you split every value into separate boxes.
+        </p>
+      </div>
+
+      <div class="mt-12 grid gap-px overflow-hidden rounded-lg border border-zinc-200 bg-zinc-200 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="bg-white p-6">
+          <h3 class="text-lg font-semibold text-zinc-950">Lap and race times</h3>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            Compare average lap speed across a session and see the spread between your fastest and slowest effort.
+          </p>
+        </div>
+        <div class="bg-white p-6">
+          <h3 class="text-lg font-semibold text-zinc-950">Commute and travel time</h3>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            Average a week of commutes to understand your realistic daily travel time.
+          </p>
+        </div>
+        <div class="bg-white p-6">
+          <h3 class="text-lg font-semibold text-zinc-950">Workout intervals</h3>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            Track rest and work intervals, then find a target pace from the median rather than one outlier.
+          </p>
+        </div>
+        <div class="bg-white p-6">
+          <h3 class="text-lg font-semibold text-zinc-950">Call center AHT</h3>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            Calculate average handling time with weighted values when some calls represent larger groups.
+          </p>
+        </div>
+        <div class="bg-white p-6">
+          <h3 class="text-lg font-semibold text-zinc-950">Sleep and routines</h3>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            Find your average bedtime without the midnight problem distorting the result.
+          </p>
+        </div>
+        <div class="bg-white p-6">
+          <h3 class="text-lg font-semibold text-zinc-950">Task and project time</h3>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            Turn scattered time logs into a clear average, total, and range for planning.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="industry-use-cases" class="border-t border-zinc-200 bg-white">
+    <div class="page-shell section-pad">
+      <div class="max-w-4xl">
+        <h2 class="text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          Average time by role and industry
+        </h2>
+        <p class="mt-5 max-w-3xl text-base leading-relaxed text-zinc-600">
+          The same calculation appears in different jobs under different names. Choose the mode based on whether your values are elapsed time or points in the day.
+        </p>
+      </div>
+      <div class="mt-10 overflow-x-auto rounded-lg border border-zinc-200">
+        <table class="w-full min-w-[760px] text-left text-sm">
+          <thead class="bg-zinc-50 text-zinc-700">
+            <tr>
+              <th class="px-4 py-3 font-semibold">Role or field</th>
+              <th class="px-4 py-3 font-semibold">Typical data</th>
+              <th class="px-4 py-3 font-semibold">Best mode</th>
+              <th class="px-4 py-3 font-semibold">Why supporting stats help</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-200 bg-white">
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Runner or coach</td>
+              <td class="px-4 py-4 text-zinc-600">Lap splits, repeats, race segments</td>
+              <td class="px-4 py-4 font-mono text-zinc-700">Duration</td>
+              <td class="px-4 py-4 text-zinc-600">Median shows typical effort; range reveals consistency.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Commuter</td>
+              <td class="px-4 py-4 text-zinc-600">Daily travel time over one or two weeks</td>
+              <td class="px-4 py-4 font-mono text-zinc-700">Duration</td>
+              <td class="px-4 py-4 text-zinc-600">Median is a better estimate when one day is unusually bad.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Call center analyst</td>
+              <td class="px-4 py-4 text-zinc-600">Handling time by call group or agent</td>
+              <td class="px-4 py-4 font-mono text-zinc-700">Weighted duration</td>
+              <td class="px-4 py-4 text-zinc-600">Weights keep a 20-call group from counting the same as one call.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Sleep tracker</td>
+              <td class="px-4 py-4 text-zinc-600">Bedtimes, wake times, or both</td>
+              <td class="px-4 py-4 font-mono text-zinc-700">Clock time</td>
+              <td class="px-4 py-4 text-zinc-600">Circular mean keeps 23:50 and 00:10 close to midnight.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Operations manager</td>
+              <td class="px-4 py-4 text-zinc-600">Task durations, cycle time, wait time</td>
+              <td class="px-4 py-4 font-mono text-zinc-700">Duration</td>
+              <td class="px-4 py-4 text-zinc-600">Total and count turn an average into a capacity estimate.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Data or support analyst</td>
+              <td class="px-4 py-4 text-zinc-600">Response times, resolution times</td>
+              <td class="px-4 py-4 font-mono text-zinc-700">Duration</td>
+              <td class="px-4 py-4 text-zinc-600">Compare median with mean to detect slow outliers.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-4 font-semibold text-zinc-900">Shift scheduler</td>
+              <td class="px-4 py-4 text-zinc-600">Clock-in or arrival times</td>
+              <td class="px-4 py-4 font-mono text-zinc-700">Clock time</td>
+              <td class="px-4 py-4 text-zinc-600">Circular spread shows whether arrival times are tightly grouped.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="advanced" class="section-pad">
+    <div class="page-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+      <div>
+        <h2 class="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          Weighted and running averages, without the spreadsheet.
+        </h2>
+        <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
+          A basic mean treats every row as equal. Weighted average lets you attach importance, while running average shows how the result changes as more data arrives.
+        </p>
+      </div>
+      <div class="grid gap-4">
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Weighted average</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            Enter each time followed by a comma and a weight, such as <span class="font-mono text-zinc-950">4m 20s,3</span>. The result is the total weighted time divided by total weight.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Running average</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            Turn on running average to see the cumulative mean after the first value, second value, third value, and so on.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Weighted example</h3>
+          <pre class="mt-3 overflow-x-auto rounded-lg bg-zinc-50 p-4 font-mono text-sm leading-7 text-zinc-800">4m 20s,3
+3m 48s,1
+5m 02s,2</pre>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            The first value represents three calls, the second one call, and the third two calls. The result is weighted by the total number of observations, not just the number of rows.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Weighted calculation, step by step</h3>
+          <table class="mt-3 w-full text-left text-sm">
+            <thead class="bg-zinc-50 text-zinc-700">
+              <tr>
+                <th class="px-3 py-2 font-semibold">Duration</th>
+                <th class="px-3 py-2 font-semibold">Weight</th>
+                <th class="px-3 py-2 font-semibold">Contribution</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200">
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">4m 20s</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">3</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">780s</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">3m 48s</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">1</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">228s</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">5m 02s</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">2</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">604s</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm leading-relaxed text-emerald-900">
+            Weighted total = 1612 seconds, total weight = 6<br />
+            Weighted average = 1612 / 6 = <span class="font-mono">4:28.6667</span>
+          </div>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Running average example</h3>
+          <pre class="mt-3 overflow-x-auto rounded-lg bg-zinc-50 p-4 font-mono text-sm leading-7 text-zinc-800">42m
+38m
+51m
+44m</pre>
+          <table class="mt-4 w-full text-left text-sm">
+            <thead class="bg-zinc-50 text-zinc-700">
+              <tr>
+                <th class="px-3 py-2 font-semibold">After value</th>
+                <th class="px-3 py-2 font-semibold">Cumulative mean</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200">
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">42m</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">42:00</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">38m</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">40:00</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">51m</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">43:40</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">44m</td>
+                <td class="px-3 py-2 font-mono text-zinc-700">43:45</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            Running average shows how the central value changes as more evidence arrives, which is useful for trend monitoring and early detection of an unstable process.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-pad">
+    <div class="page-shell grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+      <div>
+        <h2 class="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          Faster than a spreadsheet, clearer than a single average.
+        </h2>
+        <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
+          The result panel shows more than one number. You can see the total, count, minimum, maximum, median, and range while you paste, so mistakes are easier to catch.
+        </p>
+      </div>
+      <div class="grid gap-4">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="border-t border-zinc-200 pt-5">
+            <h3 class="text-base font-semibold text-zinc-950">Smart input</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Paste mixed formats without splitting them into hour, minute, and second fields.
+            </p>
+          </div>
+          <div class="border-t border-zinc-200 pt-5">
+            <h3 class="text-base font-semibold text-zinc-950">Weighted average</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Give more weight to samples that represent more observations.
+            </p>
+          </div>
+          <div class="border-t border-zinc-200 pt-5">
+            <h3 class="text-base font-semibold text-zinc-950">Running average</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Watch the average change as each value is added to the set.
+            </p>
+          </div>
+          <div class="border-t border-zinc-200 pt-5">
+            <h3 class="text-base font-semibold text-zinc-950">Private by default</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              All calculations happen locally. Nothing leaves your browser.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="metrics" class="section-pad">
+    <div class="page-shell grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+      <div>
+        <h2 class="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          Average, min, max, median, and range explained.
+        </h2>
+        <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
+          Each metric answers a different question. The average is your central number, but the other values reveal whether your data is stable or full of outliers.
+        </p>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Average</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            The central value, calculated from all entered values.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Min and max</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            The shortest and longest values, useful for spotting extreme results.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Median</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            The middle value after sorting, less sensitive to one extreme outlier.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Range and spread</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            Range shows duration spread. Clock time uses circular spread because midnight is not a normal boundary.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-10 rounded-lg border border-zinc-200 bg-zinc-50 p-6 lg:col-span-2">
+        <h3 class="text-lg font-semibold text-zinc-950">Which number should you report?</h3>
+        <p class="mt-3 max-w-3xl text-sm leading-relaxed text-zinc-600">
+          The right statistic depends on the question you are trying to answer. Average is a good default, median is better when outliers are common, and weighted average is necessary when some rows represent more observations than others.
+        </p>
+        <table class="mt-5 w-full overflow-hidden rounded-lg border border-zinc-200 text-left text-sm">
+          <thead class="bg-white text-zinc-700">
+            <tr>
+              <th class="px-4 py-3 font-semibold">Use this</th>
+              <th class="px-4 py-3 font-semibold">When you need</th>
+              <th class="px-4 py-3 font-semibold">Example</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-200 bg-white">
+            <tr>
+              <td class="px-4 py-3 font-semibold text-zinc-900">Average</td>
+              <td class="px-4 py-3 text-zinc-600">A central expected value from evenly meaningful observations.</td>
+              <td class="px-4 py-3 text-zinc-600">Typical commute time from a week of daily trips.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-semibold text-zinc-900">Median</td>
+              <td class="px-4 py-3 text-zinc-600">A typical value when one or two extreme results would distort the mean.</td>
+              <td class="px-4 py-3 text-zinc-600">Average response time when a small number of tickets took hours.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-semibold text-zinc-900">Weighted average</td>
+              <td class="px-4 py-3 text-zinc-600">A mean that accounts for how many observations each row represents.</td>
+              <td class="px-4 py-3 text-zinc-600">Call center AHT when one row is a group of 20 calls.</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-semibold text-zinc-900">Range or spread</td>
+              <td class="px-4 py-3 text-zinc-600">A sense of variability around the central value.</td>
+              <td class="px-4 py-3 text-zinc-600">Checking whether lap times are stable or becoming less consistent.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="accuracy" class="border-t border-zinc-200 bg-white">
+    <div class="page-shell section-pad">
+      <div class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+        <div>
+          <h2 class="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+            Precision, rounding, and confidence.
+          </h2>
+          <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
+            A precise average is not the same as a reliable average. The summary panel gives you the supporting numbers needed to tell the difference.
+          </p>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Milliseconds and rounding</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Results keep milliseconds when they are present, so lap times, intervals, and response-time records are not rounded away unnecessarily.
+            </p>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Count and sample size</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              One or two values cannot produce a stable average. The count makes it clear how much evidence supports the result.
+            </p>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Outliers and the median</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              When one value is unusually long or short, the median is a useful cross-check because it is less sensitive to that single result.
+            </p>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Circular spread</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Clock times with a small spread are tightly grouped around the average. A large spread means the average may represent a wide range of times.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-10 grid gap-6 lg:grid-cols-2">
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">How to read a circular clock-time result</h3>
+          <table class="mt-4 w-full text-left text-sm">
+            <thead class="bg-zinc-50 text-zinc-700">
+              <tr>
+                <th class="px-3 py-2 font-semibold">Input</th>
+                <th class="px-3 py-2 font-semibold">Correct interpretation</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200">
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">23:50, 00:10</td>
+                <td class="px-3 py-2 text-zinc-600">Averages to about midnight because the two times are close together.</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">23:00, 01:00</td>
+                <td class="px-3 py-2 text-zinc-600">Also averages to about midnight, not noon.</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">00:00, 12:00</td>
+                <td class="px-3 py-2 text-zinc-600">The average is not defined because the times are evenly opposite on the clock.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">How to read a duration result</h3>
+          <table class="mt-4 w-full text-left text-sm">
+            <thead class="bg-zinc-50 text-zinc-700">
+              <tr>
+                <th class="px-3 py-2 font-semibold">Input</th>
+                <th class="px-3 py-2 font-semibold">Interpretation</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200">
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">42m, 38m, 51m, 44m</td>
+                <td class="px-3 py-2 text-zinc-600">Average 43:45; range 13 minutes shows noticeable variation.</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">45s, 46s, 45.5s</td>
+                <td class="px-3 py-2 text-zinc-600">Average 45.5s; tight range means the process is stable.</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-mono text-zinc-700">4m, 5m, 42m</td>
+                <td class="px-3 py-2 text-zinc-600">Average is inflated by the 42-minute outlier; compare the median.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="spreadsheet-formulas" class="border-t border-zinc-200 bg-white">
+    <div class="page-shell section-pad">
+      <div class="max-w-4xl">
+        <h2 class="text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          Use the same formulas in Excel and Google Sheets
+        </h2>
+        <p class="mt-5 max-w-3xl text-base leading-relaxed text-zinc-600">
+          If you prefer a spreadsheet, the same calculations are easy to reproduce. Store each value in a cell, convert it to a consistent unit, then apply the matching formula.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-6 lg:grid-cols-2">
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Duration average</h3>
+          <pre class="mt-3 overflow-x-auto rounded-lg bg-zinc-50 p-4 font-mono text-sm leading-7 text-zinc-800">=AVERAGE(A2:A5)</pre>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            Works directly when cells are formatted as time or when each cell contains the value in seconds.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Weighted average</h3>
+          <pre class="mt-3 overflow-x-auto rounded-lg bg-zinc-50 p-4 font-mono text-sm leading-7 text-zinc-800">=SUMPRODUCT(A2:A5,B2:B5)/SUM(B2:B5)</pre>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            Use column A for time values and column B for the corresponding weights.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Running average</h3>
+          <pre class="mt-3 overflow-x-auto rounded-lg bg-zinc-50 p-4 font-mono text-sm leading-7 text-zinc-800">=AVERAGE($A$2:A2)</pre>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            Drag this formula down the column to show the cumulative mean after each row.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Clock time circular average</h3>
+          <pre class="mt-3 overflow-x-auto rounded-lg bg-zinc-50 p-4 font-mono text-sm leading-7 text-zinc-800">=MOD(ATAN2(SUMPRODUCT(SIN(2*PI()*A2:A5/24)),SUMPRODUCT(COS(2*PI()*A2:A5/24)))*24/(2*PI()),24)</pre>
+          <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+            This formula treats time-of-day values as fractions of a 24-hour day. Format the result cell as a time.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8 rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+        <p class="text-sm leading-relaxed text-zinc-600">
+          For everyday use, this page is faster because it accepts mixed formats, handles the midnight problem automatically, and shows supporting statistics without building a spreadsheet.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="references" class="section-pad">
+    <div class="page-shell">
+      <div class="max-w-4xl">
+        <h2 class="text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          References
+        </h2>
+        <p class="mt-5 max-w-3xl text-base leading-relaxed text-zinc-600">
+          These are the documented functions and concepts behind the formulas on this page.
+        </p>
+        <ul class="mt-6 grid gap-3 text-sm leading-relaxed text-zinc-700">
+          <li>
+            <a href="https://support.google.com/docs/answer/3093615" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
+              Google Sheets AVERAGE function
+            </a>
+            <span class="text-zinc-500"> - averages a range of time values.</span>
+          </li>
+          <li>
+            <a href="https://support.google.com/docs/answer/3094294" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
+              Google Sheets SUMPRODUCT function
+            </a>
+            <span class="text-zinc-500"> - multiplies and sums weighted values.</span>
+          </li>
+          <li>
+            <a href="https://en.wikipedia.org/wiki/Circular_mean" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
+              Circular mean
+            </a>
+            <span class="text-zinc-500"> - averages angles for clock times across midnight.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="border-t border-zinc-200 bg-white">
+    <div class="page-shell section-pad">
+      <div class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+        <div>
+          <h2 class="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+            About this calculator
+          </h2>
+          <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
+            Average Time Calculator is an independent utility for people who work with time data. It is built to be faster than a spreadsheet and clearer than a single average, with no accounts, ads, or server-side data collection.
+          </p>
+          <p class="mt-4 text-sm font-medium text-zinc-500">
+            Published by the Average Time Calculator project
+          </p>
+          <p class="mt-2 text-sm text-zinc-500">
+            Midnight crossings and outlier cases are worked through below so you can verify the math.
+          </p>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Free and private</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              No account, no sign-up, and no time data is uploaded or stored on a server.
+            </p>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Built for real data</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Mixed formats, weighted records, CSV import, and shareable result links are supported.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="privacy" class="border-t border-zinc-200 bg-white">
+    <div class="page-shell section-pad">
+      <div class="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
+        <div>
+          <h2 class="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+            Privacy
+          </h2>
+          <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
+            The calculator is private by design. Time values never leave your browser.
+          </p>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">No server storage</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              All calculations run locally. Values are not uploaded, stored, or shared.
+            </p>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Local storage</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Your mode and options may be remembered on your device only.
+            </p>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Share links</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Sharing encodes your input in the URL fragment; nothing is sent to a server.
+            </p>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">No ads or trackers</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              No accounts, advertising networks, analytics, or cookies.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="embed" class="border-t border-zinc-200 bg-white">
+    <div class="page-shell section-pad">
+      <div class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+        <div class="min-w-0">
+          <h2 class="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+            Embed, share, and keep it private.
+          </h2>
+          <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
+            Add the calculator to your running, sleep, or workforce article. All calculations happen in the visitor's browser, so no time data is uploaded or stored.
+          </p>
+        </div>
+        <div class="min-w-0 grid gap-4">
+          <div class="rounded-lg border border-zinc-200 bg-white p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Embed code</h3>
+            <pre class="mt-4 w-full max-w-full overflow-x-auto rounded-lg bg-zinc-950 p-4 text-sm leading-relaxed text-emerald-100"><code class="block whitespace-pre-wrap break-all">&lt;iframe src="https://average-time-calculator.com/embed" width="100%" height="720" loading="lazy" title="Average Time Calculator"&gt;&lt;/iframe&gt;</code></pre>
+            <button type="button" id="copy-embed-code" class="mt-4 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800 active:translate-y-px">
+              Copy code
+            </button>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-white p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Share a result</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Use the Share button in the calculator to copy a link that restores your current mode, values, and options.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="common-mistakes" class="section-pad">
+    <div class="page-shell">
+      <div class="max-w-3xl">
+        <h2 class="text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          Common mistakes when averaging time
+        </h2>
+        <p class="mt-5 text-base leading-relaxed text-zinc-600">
+          Most wrong results come from choosing the wrong interpretation, not from bad arithmetic.
+        </p>
+      </div>
+      <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Treating clock time as duration</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            Averaging 23:50 and 00:10 as ordinary numbers produces 12:00, which is wrong for times of day.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Ignoring units</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            Mixing minutes, seconds, and decimal hours without normalizing them to the same unit can distort the result.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Using average pace as average speed</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            Pace and speed are reciprocal measures. Average lap duration is not the same as average lap speed.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Letting one outlier dominate</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            A single very slow commute can make the mean look worse than the typical trip. Compare the median to catch this.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Forgetting weights</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            If some rows represent many observations, a plain average will underweight those groups.
+          </p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Assuming the result is precise</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+            Time data often includes rounding and manual entry error. Use count, min, max, and range to see how confident the average should be.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="glossary" class="border-t border-zinc-200 bg-white">
+    <div class="page-shell section-pad">
+      <div class="max-w-3xl">
+        <h2 class="text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+          Time-average terms explained
+        </h2>
+        <p class="mt-5 text-base leading-relaxed text-zinc-600">
+          These definitions map directly to the result panel. If a term is unfamiliar, use this section to understand what the number means.
+        </p>
+      </div>
+      <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Mean / average</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">The central value calculated from all entered values. It is useful when the data is roughly balanced.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Duration</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">An amount of elapsed time, such as 1:30.45 or 3h 12m. Durations use ordinary arithmetic.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Clock time</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">A point in the day, such as 11:45 PM. Clock times wrap every 24 hours and need circular averaging near midnight.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Circular mean</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">An average of angles rather than ordinary numbers. It prevents 23:50 and 00:10 from averaging to 12:00.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Weighted average</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">A mean where each value counts according to its weight, such as call volume or sample size.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Running average</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">The cumulative mean after each value in the list. It shows how the average changes as data arrives.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Median</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">The middle value after sorting. It is less sensitive than the mean to one extreme observation.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Range</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">The difference between the longest and shortest duration. It gives a quick sense of variability.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Circular spread</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">The circular equivalent of range for clock times. A small spread means the times are tightly grouped.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-white p-6">
+          <h3 class="text-base font-semibold text-zinc-950">Sample size</h3>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">The number of valid values in the set. More values generally produce a more stable average.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="border-t border-zinc-200 bg-white">
+    <div class="page-shell section-pad">
+      <div class="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
+        <div>
+          <h2 class="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+            Frequently asked questions
+          </h2>
+          <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
+            Straight answers to the most common questions about averaging time values.
+          </p>
+        </div>
+        <div class="divide-y divide-zinc-200 border-y border-zinc-200">
+          {
+            faqs.map((faq) => (
+              <details class="group py-5">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-6 text-left text-base font-semibold text-zinc-950">
+                  {faq.question}
+                  <span class="text-xl font-normal text-zinc-400 transition group-open:rotate-45">+</span>
+                </summary>
+                <p class="mt-4 max-w-3xl text-sm leading-relaxed text-zinc-600">
+                  {faq.answer}
+                </p>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const copyEmbedCodeButton = document.getElementById("copy-embed-code");
+
+    if (copyEmbedCodeButton) {
+      copyEmbedCodeButton.addEventListener("click", async () => {
+        const embedCode =
+          '<iframe src="https://average-time-calculator.com/embed" width="100%" height="720" loading="lazy" title="Average Time Calculator"></iframe>';
+
+        try {
+          await navigator.clipboard.writeText(embedCode);
+          copyEmbedCodeButton.textContent = "Copied";
+          window.setTimeout(() => {
+            copyEmbedCodeButton.textContent = "Copy code";
+          }, 1400);
+        } catch {
+          copyEmbedCodeButton.textContent = "Copy unavailable";
+        }
+      });
+    }
+  </script>
+
+</Layout>

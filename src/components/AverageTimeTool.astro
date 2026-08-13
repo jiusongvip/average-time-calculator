@@ -1,0 +1,1200 @@
+---
+interface Props {
+  title?: string;
+  subtitle?: string;
+  defaultMode?: "duration" | "clock";
+  hideModeSelector?: boolean;
+  defaultWeighted?: boolean;
+  defaultRunning?: boolean;
+  defaultExample?: "laps" | "commute" | "workout" | "aht" | "bedtime";
+  persistLocal?: boolean;
+}
+
+const {
+  title = "Average Time Calculator",
+  subtitle = "Average duration and clock time in one paste, with midnight-safe math.",
+  defaultMode = "duration",
+  hideModeSelector = false,
+  defaultWeighted = false,
+  defaultRunning = false,
+  defaultExample,
+  persistLocal = true,
+} = Astro.props;
+---
+
+<section id="tool" class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-[0_18px_60px_rgba(24,24,27,0.06)]">
+  <div class="border-b border-zinc-200 bg-emerald-50/70 px-6 py-4 sm:px-8">
+    <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-emerald-900">
+      <span class="inline-flex items-center gap-1.5">
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+        Free
+      </span>
+      <span class="inline-flex items-center gap-1.5">
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+        No sign-up
+      </span>
+      <span class="inline-flex items-center gap-1.5">
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+        Private
+      </span>
+      <span class="inline-flex items-center gap-1.5">
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+        No ads
+      </span>
+    </div>
+  </div>
+  <div class="grid gap-0 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+    <div class="p-6 sm:p-8">
+      <p class="text-sm font-semibold uppercase tracking-[0.08em] text-emerald-700">Instant online tool</p>
+      <h1 class="mt-3 max-w-2xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+        {title}
+      </h1>
+      <p class="mt-4 max-w-2xl text-base leading-relaxed text-zinc-600">
+        {subtitle}
+      </p>
+
+      {!hideModeSelector && (
+        <div class="mt-7 grid gap-2 sm:grid-cols-2" role="group" aria-label="Calculation mode">
+          <button type="button" data-mode="duration" class="mode-button rounded-lg border px-4 py-3 text-left text-sm font-semibold transition">
+            <span class="block text-base">Duration average</span>
+            <span class="mt-1 block text-xs font-normal text-zinc-500">For lap times, commutes, tasks, and intervals</span>
+          </button>
+          <button type="button" data-mode="clock" class="mode-button rounded-lg border px-4 py-3 text-left text-sm font-semibold transition">
+            <span class="block text-base">Clock time average</span>
+            <span class="mt-1 block text-xs font-normal text-zinc-500">For bedtimes, arrival times, and times crossing midnight</span>
+          </button>
+        </div>
+      )}
+      {hideModeSelector && (
+        <p class="mt-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800">
+          {defaultMode === "clock" ? "Clock time mode" : "Duration mode"}
+        </p>
+      )}
+      {!hideModeSelector && (
+        <p class="mt-4 text-sm leading-relaxed text-zinc-600">
+          Durations? Paste lap, commute, or task times. Times of day? Switch to Clock Time.
+        </p>
+      )}
+
+      <label for="time-input" class="mt-7 block text-sm font-semibold text-zinc-900">
+        Time values
+      </label>
+      <textarea
+        id="time-input"
+        rows="9"
+        spellcheck="false"
+        placeholder="1:32.40&#10;1:31.20&#10;1:33.10"
+        class="mt-3 w-full resize-y rounded-lg border border-zinc-300 bg-zinc-50 px-4 py-3 font-mono text-sm leading-7 text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+      ></textarea>
+      <p id="input-hint" class="mt-2 text-xs leading-relaxed text-zinc-500">
+        One value per line. Accepts 1:30:45, 45:30, 90s, 1h 23m, 1.5h, and 11:45 PM. In weighted mode, add a comma or tab followed by the weight.
+      </p>
+
+      <div class="mt-5 flex flex-wrap gap-3">
+        <button type="button" id="copy-result" class="rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800 active:translate-y-px">
+          Copy summary
+        </button>
+        <button type="button" id="paste-input" class="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-900 transition hover:border-zinc-400 hover:bg-zinc-50 active:translate-y-px">
+          Paste
+        </button>
+        <button type="button" id="import-file" class="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-900 transition hover:border-zinc-400 hover:bg-zinc-50 active:translate-y-px">
+          Import CSV
+        </button>
+        <button type="button" id="download-sample" class="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-900 transition hover:border-zinc-400 hover:bg-zinc-50 active:translate-y-px">
+          Sample CSV
+        </button>
+        <button type="button" id="download-result" class="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-900 transition hover:border-zinc-400 hover:bg-zinc-50 active:translate-y-px">
+          Download CSV
+        </button>
+        <button type="button" id="share-result" class="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-900 transition hover:border-zinc-400 hover:bg-zinc-50 active:translate-y-px">
+          Share
+        </button>
+        <button type="button" id="clear-input" class="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-900 transition hover:border-zinc-400 hover:bg-zinc-50 active:translate-y-px">
+          Clear
+        </button>
+        <input id="file-input" type="file" accept=".csv,.txt,text/csv,text/plain" class="hidden" />
+      </div>
+      <p class="mt-3 text-xs leading-relaxed text-zinc-500">
+        Share creates a link that restores this exact input, mode, and options.
+      </p>
+
+      <div class="mt-6">
+        <p class="text-sm font-semibold text-zinc-900">Load an example</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button type="button" data-example="laps" class="example-button rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-emerald-500 hover:text-emerald-700">
+            Lap times
+          </button>
+          <button type="button" data-example="commute" class="example-button rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-emerald-500 hover:text-emerald-700">
+            Commute
+          </button>
+          <button type="button" data-example="workout" class="example-button rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-emerald-500 hover:text-emerald-700">
+            Workout
+          </button>
+          <button type="button" data-example="aht" class="example-button rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-emerald-500 hover:text-emerald-700">
+            Call center
+          </button>
+          <button type="button" data-example="bedtime" class="example-button rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-emerald-500 hover:text-emerald-700">
+            Bedtime
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="border-t border-zinc-200 bg-zinc-50/60 p-6 sm:p-8 lg:border-l lg:border-t-0">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 class="text-sm font-semibold uppercase tracking-[0.08em] text-zinc-500">Result</h2>
+          <p class="mt-1 text-xs text-zinc-500">Updates as you type</p>
+        </div>
+        <label class="flex items-center gap-2 text-sm text-zinc-600">
+          <span class="font-medium">Format</span>
+          <select id="output-format" class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"></select>
+        </label>
+      </div>
+
+      <div id="primary-result" class="mt-8 font-mono text-4xl font-semibold tracking-[-0.05em] text-zinc-950 sm:text-5xl">
+        00:00:00
+      </div>
+      <p id="result-subtext" class="mt-2 text-sm text-zinc-500">Average of 0 time values</p>
+      <p class="mt-1 text-xs leading-relaxed text-zinc-400">
+        Average is most reliable when count is high and range or spread is small.
+      </p>
+
+      <dl class="mt-8 grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-3">
+        <div id="stat-total-cell" class="stat-cell">
+          <dt class="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">Total</dt>
+          <dd id="stat-total" class="mt-2 font-mono text-lg font-semibold text-zinc-950">00:00:00</dd>
+        </div>
+        <div class="stat-cell">
+          <dt class="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">Count</dt>
+          <dd id="stat-count" class="mt-2 font-mono text-lg font-semibold text-zinc-950">0</dd>
+        </div>
+        <div class="stat-cell">
+          <dt class="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">Min</dt>
+          <dd id="stat-min" class="mt-2 font-mono text-lg font-semibold text-zinc-950">00:00:00</dd>
+        </div>
+        <div class="stat-cell">
+          <dt class="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">Max</dt>
+          <dd id="stat-max" class="mt-2 font-mono text-lg font-semibold text-zinc-950">00:00:00</dd>
+        </div>
+        <div class="stat-cell">
+          <dt class="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">Median</dt>
+          <dd id="stat-median" class="mt-2 font-mono text-lg font-semibold text-zinc-950">00:00:00</dd>
+        </div>
+        <div id="stat-range-cell" class="stat-cell">
+          <dt class="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">Range</dt>
+          <dd id="stat-range" class="mt-2 font-mono text-lg font-semibold text-zinc-950">00:00:00</dd>
+        </div>
+        <div id="stat-spread-cell" class="stat-cell hidden">
+          <dt class="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">Spread</dt>
+          <dd id="stat-spread" class="mt-2 font-mono text-lg font-semibold text-zinc-950">00:00:00</dd>
+        </div>
+      </dl>
+
+      <div class="mt-8 grid gap-3">
+        <label class="flex cursor-pointer items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3">
+          <span class="text-sm font-semibold text-zinc-900">Weighted average</span>
+          <input type="checkbox" id="weighted-toggle" class="h-4 w-4 accent-emerald-700" />
+        </label>
+        <label class="flex cursor-pointer items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3">
+          <span class="text-sm font-semibold text-zinc-900">Running average</span>
+          <input type="checkbox" id="running-toggle" class="h-4 w-4 accent-emerald-700" />
+        </label>
+      </div>
+
+      <div class="mt-8">
+        <p class="text-sm font-semibold text-zinc-900">Parsed values</p>
+        <div id="parsed-list" class="mt-3 space-y-2"></div>
+      </div>
+
+      <div id="running-results" class="mt-6 hidden">
+        <p class="text-sm font-semibold text-zinc-900">Running average</p>
+        <div id="running-list" class="mt-3 space-y-2"></div>
+        <svg id="running-chart" class="mt-5 h-40 w-full" viewBox="0 0 400 160" preserveAspectRatio="none" aria-label="Running average chart" role="img">
+          <title>Running average chart</title>
+        </svg>
+      </div>
+
+      <p id="message" class="mt-6 min-h-5 text-sm leading-relaxed text-zinc-600" aria-live="polite"></p>
+    </aside>
+  </div>
+</section>
+
+<script define:vars={{ defaultMode, defaultWeighted, defaultRunning, defaultExample, persistLocal }}>
+  const textarea = document.getElementById("time-input");
+  const inputHint = document.getElementById("input-hint");
+  const primaryResult = document.getElementById("primary-result");
+  const resultSubtext = document.getElementById("result-subtext");
+  const formatSelect = document.getElementById("output-format");
+  const statTotal = document.getElementById("stat-total");
+  const statCount = document.getElementById("stat-count");
+  const statMin = document.getElementById("stat-min");
+  const statMax = document.getElementById("stat-max");
+  const statMedian = document.getElementById("stat-median");
+  const statRange = document.getElementById("stat-range");
+  const statSpread = document.getElementById("stat-spread");
+  const statTotalCell = document.getElementById("stat-total-cell");
+  const statRangeCell = document.getElementById("stat-range-cell");
+  const statSpreadCell = document.getElementById("stat-spread-cell");
+  const weightedToggle = document.getElementById("weighted-toggle");
+  const runningToggle = document.getElementById("running-toggle");
+  const runningResults = document.getElementById("running-results");
+  const runningList = document.getElementById("running-list");
+  const runningChart = document.getElementById("running-chart");
+  const parsedList = document.getElementById("parsed-list");
+  const message = document.getElementById("message");
+  const copyButton = document.getElementById("copy-result");
+  const downloadButton = document.getElementById("download-result");
+  const importFileButton = document.getElementById("import-file");
+  const fileInput = document.getElementById("file-input");
+  const shareButton = document.getElementById("share-result");
+  const clearButton = document.getElementById("clear-input");
+  const pasteButton = document.getElementById("paste-input");
+  const downloadSampleButton = document.getElementById("download-sample");
+
+  const modeButtons = [...document.querySelectorAll("[data-mode]")];
+  const exampleButtons = [...document.querySelectorAll("[data-example]")];
+
+  const examples = {
+    laps: {
+      mode: "duration",
+      value: "1:32.40\n1:31.20\n1:33.10\n1:30.85",
+    },
+    commute: {
+      mode: "duration",
+      value: "42m\n38m\n51m\n44m",
+    },
+    workout: {
+      mode: "duration",
+      value: "45s\n1m 5s\n38s\n1m 12s",
+    },
+    aht: {
+      mode: "duration",
+      value: "4m 20s\n3m 48s\n5m 2s\n4m 31s",
+    },
+    bedtime: {
+      mode: "clock",
+      value: "23:45\n00:10\n23:30\n23:55",
+    },
+  };
+
+  let currentMode = defaultMode === "clock" ? "clock" : "duration";
+
+  const durationFormats = [
+    ["auto", "Auto"],
+    ["hhmmss", "HH:MM:SS"],
+    ["decimal-hours", "Decimal hours"],
+    ["total-minutes", "Total minutes"],
+    ["total-seconds", "Total seconds"],
+    ["compact", "Compact"],
+  ];
+
+  const clockFormats = [
+    ["12-hour", "12-hour"],
+    ["24-hour", "24-hour"],
+    ["compact", "Compact"],
+  ];
+
+  function setFormatOptions(mode) {
+    const formats = mode === "clock" ? clockFormats : durationFormats;
+    formatSelect.innerHTML = "";
+
+    for (const [value, label] of formats) {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = label;
+      formatSelect.appendChild(option);
+    }
+
+    formatSelect.value = mode === "clock" ? "12-hour" : "auto";
+  }
+
+  function setMode(mode) {
+    currentMode = mode;
+
+    for (const button of modeButtons) {
+      const isActive = button.dataset.mode === mode;
+      button.classList.toggle("border-emerald-600", isActive);
+      button.classList.toggle("bg-emerald-50", isActive);
+      button.classList.toggle("text-emerald-900", isActive);
+      button.classList.toggle("border-zinc-200", !isActive);
+      button.classList.toggle("bg-white", !isActive);
+      button.classList.toggle("text-zinc-950", !isActive);
+    }
+
+    inputHint.textContent =
+      mode === "clock"
+        ? "Enter clock times one per line. Use 24-hour or 12-hour values with AM or PM."
+        : "One value per line. Accepts 1:30:45, 45:30, 90s, 1h 23m, 1.5h, and 11:45 PM. In weighted mode, add a comma or tab followed by the weight.";
+
+    setFormatOptions(mode);
+    render();
+  }
+
+  function parseUnitExpression(raw) {
+    const unitMap = {
+      ms: 0.001,
+      s: 1,
+      sec: 1,
+      second: 1,
+      seconds: 1,
+      m: 60,
+      min: 60,
+      minute: 60,
+      minutes: 60,
+      h: 3600,
+      hr: 3600,
+      hour: 3600,
+      hours: 3600,
+    };
+
+    const matches = [...raw.matchAll(/(\d+(?:\.\d+)?)\s*(ms|seconds?|sec|s|minutes?|min|m|hours?|hr|h)\b/gi)];
+
+    if (matches.length === 0) {
+      return null;
+    }
+
+    let seconds = 0;
+    let matchedText = "";
+
+    for (const match of matches) {
+      const value = Number(match[1]);
+      const unit = match[2].toLowerCase();
+      const multiplier = unitMap[unit];
+
+      if (!multiplier) {
+        return null;
+      }
+
+      seconds += value * multiplier;
+      matchedText += match[0];
+    }
+
+    return seconds;
+  }
+
+  function parseClockToSeconds(raw) {
+    let value = raw.trim();
+    let period = null;
+    const periodMatch = value.match(/\s*(am|pm)\s*$/i);
+
+    if (periodMatch) {
+      period = periodMatch[1].toLowerCase();
+      value = value.slice(0, periodMatch.index).trim();
+    }
+
+    let match = value.match(/^(\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:[.,](\d+))?)?$/);
+
+    if (!match) {
+      return null;
+    }
+
+    let hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    const seconds = Number(match[3] || "0");
+    const milliseconds = Number(`0.${match[4] || "0"}`);
+
+    if (period === "am" && hours === 12) {
+      hours = 0;
+    } else if (period === "pm" && hours !== 12) {
+      hours += 12;
+    }
+
+    if (hours > 23 || minutes > 59 || seconds > 59) {
+      return null;
+    }
+
+    return hours * 3600 + minutes * 60 + seconds + milliseconds;
+  }
+
+  function parseDurationToSeconds(raw) {
+    const value = raw.trim();
+    let match = value.match(/^(\d+):(\d{1,2}):(\d{1,2})(?:[.,](\d+))?$/);
+
+    if (match) {
+      const hours = Number(match[1]);
+      const minutes = Number(match[2]);
+      const seconds = Number(match[3]);
+      const milliseconds = Number(`0.${match[4] || "0"}`);
+
+      if (minutes > 59 || seconds > 59) {
+        return null;
+      }
+
+      return hours * 3600 + minutes * 60 + seconds + milliseconds;
+    }
+
+    match = value.match(/^(\d+):(\d{1,2})(?:[.,](\d+))?$/);
+
+    if (match) {
+      const minutes = Number(match[1]);
+      const seconds = Number(match[2]);
+      const milliseconds = Number(`0.${match[3] || "0"}`);
+
+      if (seconds > 59) {
+        return null;
+      }
+
+      return minutes * 60 + seconds + milliseconds;
+    }
+
+    if (/^\d+(?:\.\d+)?$/.test(value)) {
+      return Number(value);
+    }
+
+    return parseUnitExpression(value);
+  }
+
+  function parseLine(line, index) {
+    const trimmed = line.trim();
+    const raw = trimmed;
+
+    if (!trimmed) {
+      return null;
+    }
+
+    let timePart = trimmed;
+    let weight = 1;
+
+    if (weightedToggle.checked) {
+      const split = trimmed.split(/\t|,/);
+
+      if (split.length === 2) {
+        timePart = split[0].trim();
+        const parsedWeight = Number(split[1].trim());
+
+        if (!Number.isFinite(parsedWeight) || parsedWeight < 0) {
+          return { error: true, line: index + 1, raw };
+        }
+
+        weight = parsedWeight;
+      } else {
+        return { error: true, line: index + 1, raw };
+      }
+    }
+
+    const seconds =
+      currentMode === "clock"
+        ? parseClockToSeconds(timePart)
+        : parseDurationToSeconds(timePart);
+
+    if (!Number.isFinite(seconds) || seconds < 0) {
+      return { error: true, line: index + 1, raw };
+    }
+
+    return { seconds, weight, raw };
+  }
+
+  function looksLikeClockTime(raw) {
+    const match = raw.match(/^\d{1,2}:\d{2}(?::\d{2})?$/);
+
+    if (!match) {
+      return false;
+    }
+
+    const [hours, minutes] = raw.split(":").map(Number);
+
+    return hours <= 23 && minutes <= 59;
+  }
+
+  function looksLikeDuration(raw) {
+    if (/^\d+:\d{2}(?::\d{2})?$/.test(raw)) {
+      return Number(raw.split(":")[0]) > 23;
+    }
+
+    return /\b(h|hr|hours?|m|min|minutes?|s|sec|seconds?)\b/i.test(raw);
+  }
+
+  function escapeHtml(value) {
+    return value
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function secondsToHms(totalSeconds) {
+    const sign = totalSeconds < 0 ? "-" : "";
+    const absolute = Math.abs(totalSeconds);
+    const hours = Math.floor(absolute / 3600);
+    const minutes = Math.floor((absolute % 3600) / 60);
+    const seconds = Math.floor(absolute % 60);
+    const milliseconds = Math.round((absolute - Math.floor(absolute)) * 1000);
+
+    const base = [hours, minutes, seconds].map((value) => String(value).padStart(2, "0")).join(":");
+
+    if (milliseconds > 0) {
+      return `${sign}${base}.${String(milliseconds).padStart(3, "0")}`;
+    }
+
+    return `${sign}${base}`;
+  }
+
+  function secondsToClock(totalSeconds, format) {
+    const normalized = ((totalSeconds % 86400) + 86400) % 86400;
+    const hours24 = Math.floor(normalized / 3600);
+    const minutes = Math.floor((normalized % 3600) / 60);
+    const seconds = Math.floor(normalized % 60);
+
+    if (format === "24-hour") {
+      return `${String(hours24).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    const period = hours24 >= 12 ? "PM" : "AM";
+    const hours12 = hours24 % 12 || 12;
+
+    return `${String(hours12).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${period}`;
+  }
+
+  function secondsToCompact(totalSeconds) {
+    const absolute = Math.abs(totalSeconds);
+    const hours = Math.floor(absolute / 3600);
+    const minutes = Math.floor((absolute % 3600) / 60);
+    const seconds = Math.floor(absolute % 60);
+    const parts = [];
+
+    if (hours) parts.push(`${hours}h`);
+    if (minutes) parts.push(`${minutes}m`);
+    if (seconds || parts.length === 0) parts.push(`${seconds}s`);
+
+    return `${totalSeconds < 0 ? "-" : ""}${parts.join(" ")}`;
+  }
+
+  function formatValue(seconds, format) {
+    if (currentMode === "clock") {
+      if (format === "compact") {
+        return secondsToCompact(seconds);
+      }
+
+      return secondsToClock(seconds, format);
+    }
+
+    if (format === "decimal-hours") {
+      return `${(seconds / 3600).toFixed(4)} h`;
+    }
+
+    if (format === "total-minutes") {
+      return `${(seconds / 60).toFixed(2)} min`;
+    }
+
+    if (format === "total-seconds") {
+      return `${seconds.toFixed(2)} s`;
+    }
+
+    if (format === "compact") {
+      return secondsToCompact(seconds);
+    }
+
+    return secondsToHms(seconds);
+  }
+
+  function weightedDurationMean(entries) {
+    const totalWeight = entries.reduce((sum, entry) => sum + entry.weight, 0);
+
+    if (totalWeight === 0) {
+      return 0;
+    }
+
+    return entries.reduce((sum, entry) => sum + entry.seconds * entry.weight, 0) / totalWeight;
+  }
+
+  function circularMean(entries) {
+    let x = 0;
+    let y = 0;
+    let totalWeight = 0;
+
+    for (const entry of entries) {
+      const angle = (entry.seconds / 86400) * Math.PI * 2;
+      x += Math.cos(angle) * entry.weight;
+      y += Math.sin(angle) * entry.weight;
+      totalWeight += entry.weight;
+    }
+
+    if (totalWeight === 0) {
+      return 0;
+    }
+
+    x /= totalWeight;
+    y /= totalWeight;
+
+    if (Math.hypot(x, y) < 1e-9) {
+      return null;
+    }
+
+    const meanAngle = Math.atan2(y, x);
+    const meanSeconds = ((meanAngle / (Math.PI * 2)) * 86400 + 86400) % 86400;
+
+    return meanSeconds;
+  }
+
+  function circularSpread(entries) {
+    if (entries.length === 0) {
+      return 0;
+    }
+
+    let x = 0;
+    let y = 0;
+    let totalWeight = 0;
+
+    for (const entry of entries) {
+      const angle = (entry.seconds / 86400) * Math.PI * 2;
+      x += Math.cos(angle) * entry.weight;
+      y += Math.sin(angle) * entry.weight;
+      totalWeight += entry.weight;
+    }
+
+    if (totalWeight === 0) {
+      return 0;
+    }
+
+    x /= totalWeight;
+    y /= totalWeight;
+
+    const resultantLength = Math.min(1, Math.sqrt(x * x + y * y));
+
+    if (resultantLength <= Number.EPSILON) {
+      return null;
+    }
+
+    const spread = Math.sqrt(-2 * Math.log(resultantLength));
+
+    return (spread / (Math.PI * 2)) * 86400;
+  }
+
+  function getMean(entries) {
+    if (entries.length === 0) {
+      return 0;
+    }
+
+    return currentMode === "clock"
+      ? circularMean(entries)
+      : weightedDurationMean(entries);
+  }
+
+  function getRunningMeans(entries) {
+    const running = [];
+
+    for (let i = 0; i < entries.length; i += 1) {
+      running.push(getMean(entries.slice(0, i + 1)));
+    }
+
+    return running;
+  }
+
+  function renderRunningChart(runningMeans) {
+    const values = runningMeans.filter((value) => value !== null);
+
+    runningChart.innerHTML = "";
+
+    if (values.length < 2) {
+      return;
+    }
+
+    const width = 400;
+    const height = 160;
+    const padX = 16;
+    const padY = 16;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const span = max - min || 1;
+    const coords = values.map((value, index) => ({
+      x: padX + (index / (values.length - 1)) * (width - padX * 2),
+      y: height - padY - ((value - min) / span) * (height - padY * 2),
+    }));
+    const line = coords
+      .map((point, index) => `${index === 0 ? "M" : "L"}${point.x.toFixed(2)},${point.y.toFixed(2)}`)
+      .join(" ");
+    const area = `${line} L ${coords[coords.length - 1].x.toFixed(2)},${height - padY} L ${coords[0].x.toFixed(2)},${height - padY} Z`;
+    const gridLines = [0.25, 0.5, 0.75]
+      .map((ratio) => {
+        const y = (height - padY * 2) * ratio + padY;
+        return `<line x1="${padX}" y1="${y.toFixed(2)}" x2="${width - padX}" y2="${y.toFixed(2)}" stroke="#e4e4e7" stroke-width="1" vector-effect="non-scaling-stroke"></line>`;
+      })
+      .join("");
+    const dots = coords
+      .map((point) => `<circle cx="${point.x.toFixed(2)}" cy="${point.y.toFixed(2)}" r="3.5" fill="#047857" stroke="#ffffff" stroke-width="2" vector-effect="non-scaling-stroke"></circle>`)
+      .join("");
+
+    runningChart.innerHTML = `
+      ${gridLines}
+      <path d="${area}" fill="#ecfdf5"></path>
+      <path d="${line}" fill="none" stroke="#047857" stroke-width="3" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"></path>
+      ${dots}
+    `;
+  }
+
+  function render() {
+    const lines = textarea.value.split(/\r?\n/);
+    const parsed = [];
+    const issues = [];
+
+    lines.forEach((line, index) => {
+      if (!line.trim()) {
+        return;
+      }
+
+      const entry = parseLine(line, index);
+
+      if (!entry) {
+        return;
+      }
+
+      if (entry.error) {
+        if (currentMode === "clock" && looksLikeDuration(entry.raw)) {
+          issues.push({
+            type: "warning",
+            line: entry.line,
+            raw: entry.raw,
+            message: "Looks like a duration. Switch to Duration average.",
+          });
+        } else {
+          issues.push({
+            type: "error",
+            line: entry.line,
+            raw: entry.raw,
+            message: "Could not be read.",
+          });
+        }
+      } else {
+        parsed.push(entry);
+
+        if (currentMode === "duration" && looksLikeClockTime(entry.raw)) {
+          issues.push({
+            type: "warning",
+            line: entry.line,
+            raw: entry.raw,
+            message: "Looks like a clock time. Switch to Clock time average.",
+          });
+        }
+      }
+    });
+
+    const errors = issues.filter((issue) => issue.type === "error");
+    const warnings = issues.filter((issue) => issue.type === "warning");
+    const sorted = [...parsed].sort((a, b) => a.seconds - b.seconds);
+    const count = parsed.length;
+    const total = parsed.reduce((sum, entry) => sum + entry.seconds * entry.weight, 0);
+    const mean = getMean(parsed);
+    const min = sorted[0]?.seconds ?? 0;
+    const max = sorted.at(-1)?.seconds ?? 0;
+    const median = count
+      ? count % 2 === 0
+        ? (sorted[count / 2 - 1].seconds + sorted[count / 2].seconds) / 2
+        : sorted[Math.floor(count / 2)].seconds
+      : 0;
+    const range = max - min;
+    const spread = circularSpread(parsed);
+
+    const format = formatSelect.value;
+    const hasMean = mean !== null;
+    const hasSpread = spread !== null;
+
+    primaryResult.textContent = count
+      ? hasMean
+        ? formatValue(mean, format)
+        : "Not defined"
+      : "00:00:00";
+    resultSubtext.textContent = count
+      ? hasMean
+        ? `Average of ${count} time ${count === 1 ? "value" : "values"}`
+        : `Average is not defined for evenly opposing clock times`
+      : "Average of 0 time values";
+    statTotal.textContent = count ? formatValue(total, format) : "00:00:00";
+    statCount.textContent = String(count);
+    statMin.textContent = count ? formatValue(min, format) : "00:00:00";
+    statMax.textContent = count ? formatValue(max, format) : "00:00:00";
+    statMedian.textContent = count ? formatValue(median, format) : "00:00:00";
+    statRange.textContent = count ? formatValue(range, format) : "00:00:00";
+    statSpread.textContent = count
+      ? hasSpread
+        ? formatValue(spread, format)
+        : "Not defined"
+      : "00:00:00";
+
+    const isClockMode = currentMode === "clock";
+    statTotalCell.classList.toggle("hidden", isClockMode);
+    statRangeCell.classList.toggle("hidden", isClockMode);
+    statSpreadCell.classList.toggle("hidden", !isClockMode);
+
+    const shouldShowRunning = runningToggle.checked && count > 0;
+    runningResults.classList.toggle("hidden", !shouldShowRunning);
+    runningList.innerHTML = "";
+    runningChart.innerHTML = "";
+
+    if (shouldShowRunning) {
+      const runningMeans = getRunningMeans(parsed);
+
+      for (let i = 0; i < runningMeans.length; i += 1) {
+        const item = document.createElement("div");
+        item.className = "flex items-center justify-between rounded-lg bg-white px-3 py-2 text-sm";
+        const value = runningMeans[i];
+        const displayValue = value === null ? "Not defined" : formatValue(value, format);
+        item.innerHTML = `
+          <span class="text-zinc-500">${i + 1}</span>
+          <span class="font-mono font-semibold text-zinc-950">${displayValue}</span>
+        `;
+        runningList.appendChild(item);
+      }
+
+      renderRunningChart(runningMeans);
+    }
+
+    parsedList.innerHTML = "";
+
+    if (count === 0 && issues.length === 0) {
+      parsedList.innerHTML =
+        '<p class="rounded-lg bg-white px-3 py-2 text-sm text-zinc-600">No values yet.</p>';
+    } else {
+      for (let i = 0; i < parsed.length; i += 1) {
+        const entry = parsed[i];
+        const item = document.createElement("div");
+        item.className =
+          "flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 text-sm";
+        const weightLabel =
+          entry.weight !== 1
+            ? `<span class="ml-1 text-xs text-zinc-400">x ${escapeHtml(String(entry.weight))}</span>`
+            : "";
+        item.innerHTML = `
+          <span class="flex min-w-0 items-center gap-2">
+            <span class="w-5 shrink-0 text-right font-mono text-zinc-400">${i + 1}</span>
+            <span class="truncate font-mono text-zinc-700">${escapeHtml(entry.raw)}</span>
+            ${weightLabel}
+          </span>
+          <span class="shrink-0 font-mono font-semibold text-zinc-950">${formatValue(entry.seconds, format)}</span>
+        `;
+        parsedList.appendChild(item);
+      }
+
+      for (const issue of issues) {
+        const item = document.createElement("div");
+        item.className =
+          issue.type === "error"
+            ? "flex items-start justify-between gap-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700"
+            : "flex items-start justify-between gap-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700";
+        item.innerHTML = `
+          <span class="flex min-w-0 items-start gap-2">
+            <span class="w-5 shrink-0 text-right font-mono opacity-60">${issue.line}</span>
+            <span class="truncate font-mono">${escapeHtml(issue.raw)}</span>
+          </span>
+          <span class="shrink-0 text-xs font-semibold">${issue.message}</span>
+        `;
+        parsedList.appendChild(item);
+      }
+    }
+
+    if (warnings.length || errors.length) {
+      const label = errors.length === 1 ? "Line" : "Lines";
+      const errorText = errors.length
+        ? `${label} ${errors.map((issue) => issue.line).join(", ")} could not be read.`
+        : "";
+      const warningText = warnings
+        .map((issue) => `Line ${issue.line}: ${issue.message}`)
+        .join(" ");
+      message.textContent = [warningText, errorText].filter(Boolean).join(" ");
+      message.classList.remove("text-emerald-700");
+
+      if (errors.length) {
+        message.classList.add("text-rose-700");
+        message.classList.remove("text-amber-700");
+      } else {
+        message.classList.add("text-amber-700");
+        message.classList.remove("text-rose-700");
+      }
+    } else if (count) {
+      if (!hasMean) {
+        message.textContent = "These clock times are evenly opposite, so the average is not defined.";
+        message.classList.remove("text-rose-700", "text-emerald-700");
+        message.classList.add("text-amber-700");
+      } else {
+        message.textContent = "All values were read successfully.";
+        message.classList.remove("text-rose-700", "text-amber-700");
+        message.classList.add("text-emerald-700");
+      }
+    } else {
+      message.textContent = "Paste or type time values to calculate.";
+      message.classList.remove("text-rose-700", "text-emerald-700", "text-amber-700");
+    }
+
+    persistState();
+  }
+
+  textarea.addEventListener("input", render);
+  weightedToggle.addEventListener("change", render);
+  runningToggle.addEventListener("change", render);
+  formatSelect.addEventListener("change", render);
+
+  for (const button of modeButtons) {
+    button.addEventListener("click", () => setMode(button.dataset.mode));
+  }
+
+  for (const button of exampleButtons) {
+    button.addEventListener("click", () => {
+      const example = examples[button.dataset.example];
+
+      if (!example) {
+        return;
+      }
+
+      if (example.mode !== currentMode) {
+        setMode(example.mode);
+      }
+
+      textarea.value = example.value;
+      render();
+      textarea.focus();
+    });
+  }
+
+  clearButton.addEventListener("click", () => {
+    textarea.value = "";
+    render();
+    textarea.focus();
+  });
+
+  copyButton.addEventListener("click", async () => {
+    const summary = [
+      `Average: ${primaryResult.textContent.trim()}`,
+      `Count: ${statCount.textContent.trim()}`,
+      `Min: ${statMin.textContent.trim()}`,
+      `Max: ${statMax.textContent.trim()}`,
+      `Median: ${statMedian.textContent.trim()}`,
+      currentMode === "clock"
+        ? `Spread: ${statSpread.textContent.trim()}`
+        : `Total: ${statTotal.textContent.trim()}`,
+      ...(currentMode === "clock" ? [] : [`Range: ${statRange.textContent.trim()}`]),
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.writeText(summary);
+      copyButton.textContent = "Copied";
+
+      window.setTimeout(() => {
+        copyButton.textContent = "Copy summary";
+      }, 1400);
+    } catch {
+      message.textContent = "Copy is not available in this browser.";
+      message.classList.remove("text-emerald-700");
+      message.classList.add("text-rose-700");
+    }
+  });
+
+  downloadButton.addEventListener("click", () => {
+    const summaryRows = [
+      ["Metric", "Value"],
+      ["Mode", currentMode === "clock" ? "Clock time" : "Duration"],
+      ["Average", primaryResult.textContent],
+      ["Count", statCount.textContent],
+      ["Min", statMin.textContent],
+      ["Max", statMax.textContent],
+      ["Median", statMedian.textContent],
+      ...(currentMode === "clock"
+        ? [["Spread", statSpread.textContent]]
+        : [
+            ["Total", statTotal.textContent],
+            ["Range", statRange.textContent],
+          ]),
+    ];
+    const inputLines = textarea.value
+      .split(/\r?\n/)
+      .filter((line) => line.trim());
+    const rows = [
+      ...summaryRows,
+      ["", ""],
+      ["Input line", "Raw value"],
+      ...inputLines.map((line, index) => [String(index + 1), line.trim()]),
+    ];
+    const csv = rows
+      .map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "average-time-result.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  });
+
+  function getShareState() {
+    return {
+      v: textarea.value,
+      mode: currentMode,
+      weighted: weightedToggle.checked,
+      running: runningToggle.checked,
+      format: formatSelect.value,
+    };
+  }
+
+  function applyShareState(state) {
+    if (state.mode === "clock" || state.mode === "duration") {
+      currentMode = state.mode;
+    }
+
+    textarea.value = typeof state.v === "string" ? state.v : "";
+    weightedToggle.checked = Boolean(state.weighted);
+    runningToggle.checked = Boolean(state.running);
+    setMode(currentMode);
+
+    if (state.format) {
+      formatSelect.value = state.format;
+    }
+
+    render();
+  }
+
+  const STORAGE_KEY = "average-time-calculator:last-state-v1";
+
+  function persistState() {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(getShareState()));
+    } catch {
+      // Storage may be unavailable in private browsing or embedded contexts.
+    }
+  }
+
+  function restoreFromHash() {
+    const prefix = "#data=";
+    if (!location.hash.startsWith(prefix)) {
+      return false;
+    }
+
+    try {
+      const state = JSON.parse(decodeURIComponent(location.hash.slice(prefix.length)));
+      applyShareState(state);
+      return true;
+    } catch {
+      history.replaceState(null, "", location.pathname);
+      return false;
+    }
+  }
+
+  function restoreFromLocalStorage() {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+
+      if (!raw) {
+        return false;
+      }
+
+      applyShareState(JSON.parse(raw));
+      message.textContent = "Restored your last input from this browser.";
+      message.classList.remove("text-rose-700", "text-amber-700");
+      message.classList.add("text-emerald-700");
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function downloadCsv(csv, filename) {
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadSampleCsv() {
+    const sample = currentMode === "clock" ? examples.bedtime : examples.aht;
+    const modeLabel = currentMode === "clock" ? "Clock time" : "Duration";
+    const rows = [
+      [modeLabel],
+      ...sample.value.split("\n").map((line) => [line]),
+    ];
+    const csv = rows.map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(",")).join("\n");
+    downloadCsv(csv, `average-time-${currentMode}-sample.csv`);
+  }
+
+  importFileButton.addEventListener("click", () => fileInput.click());
+
+  pasteButton.addEventListener("click", async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+
+      if (!text) {
+        message.textContent = "Clipboard is empty.";
+        message.classList.remove("text-emerald-700");
+        message.classList.add("text-amber-700");
+        return;
+      }
+
+      textarea.value = text;
+      render();
+      textarea.focus();
+    } catch {
+      message.textContent = "Clipboard access is not available in this browser. Paste with Ctrl+V or Cmd+V.";
+      message.classList.remove("text-emerald-700");
+      message.classList.add("text-rose-700");
+    }
+  });
+
+  downloadSampleButton.addEventListener("click", downloadSampleCsv);
+
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      textarea.value = String(reader.result ?? "");
+      render();
+      textarea.focus();
+    });
+    reader.readAsText(file);
+  });
+
+  shareButton.addEventListener("click", async () => {
+    const state = getShareState();
+    const baseUrl = location.href.split("#")[0];
+    const shareUrl = `${baseUrl}#data=${encodeURIComponent(JSON.stringify(state))}`;
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      shareButton.textContent = "Link copied";
+      window.setTimeout(() => {
+        shareButton.textContent = "Share";
+      }, 1400);
+    } catch {
+      message.textContent = shareUrl;
+      message.classList.remove("text-emerald-700", "text-amber-700");
+      message.classList.add("text-zinc-700");
+    }
+  });
+
+  setFormatOptions(currentMode);
+  if (defaultWeighted) {
+    weightedToggle.checked = true;
+  }
+  if (defaultRunning) {
+    runningToggle.checked = true;
+  }
+  setMode(currentMode);
+
+  if (defaultExample && examples[defaultExample]) {
+    const example = examples[defaultExample];
+
+    if (example.mode !== currentMode) {
+      currentMode = example.mode;
+      setFormatOptions(currentMode);
+      setMode(currentMode);
+    }
+
+    textarea.value = example.value;
+    render();
+  }
+
+  const restoredFromHash = restoreFromHash();
+
+  if (!restoredFromHash) {
+    if (persistLocal) {
+      restoreFromLocalStorage();
+    } else {
+      render();
+    }
+  }
+</script>

@@ -1,0 +1,31 @@
+---
+import "../styles/global.css";
+import AverageTimeTool from "../components/AverageTimeTool.astro";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#047857" />
+    <title>Average Time Calculator Embed</title>
+  </head>
+  <body class="bg-[#fafafa]">
+    <main class="page-shell py-6">
+      <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="font-semibold tracking-[-0.02em] text-zinc-950">Average Time Calculator</p>
+          <p class="mt-1 text-sm text-zinc-500">
+            Paste durations or clock times and get the average instantly.
+          </p>
+        </div>
+        <a href="https://average-time-calculator.com/" target="_top" rel="noopener" class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold text-zinc-900 transition hover:border-zinc-400 hover:bg-zinc-50">
+          Open full tool
+        </a>
+      </div>
+      <AverageTimeTool />
+    </main>
+  </body>
+</html>
