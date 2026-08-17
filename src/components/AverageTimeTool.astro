@@ -156,6 +156,9 @@ const {
         00:00:00
       </div>
       <p id="result-subtext" class="mt-2 text-sm text-zinc-500">Average of 0 time values</p>
+      <p id="pace-result" class="mt-2 hidden text-sm font-semibold text-emerald-700">
+        Average pace: <span id="pace-value" class="font-mono">–</span>
+      </p>
       <p class="mt-1 text-xs leading-relaxed text-zinc-400">
         Average is most reliable when count is high and range or spread is small.
       </p>
@@ -185,6 +188,10 @@ const {
           <dt class="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">Range</dt>
           <dd id="stat-range" class="mt-2 font-mono text-lg font-semibold text-zinc-950">00:00:00</dd>
         </div>
+        <div id="stat-stddev-cell" class="stat-cell hidden">
+          <dt class="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">Std Dev</dt>
+          <dd id="stat-stddev" class="mt-2 font-mono text-lg font-semibold text-zinc-950">00:00:00</dd>
+        </div>
         <div id="stat-spread-cell" class="stat-cell hidden">
           <dt class="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">Spread</dt>
           <dd id="stat-spread" class="mt-2 font-mono text-lg font-semibold text-zinc-950">00:00:00</dd>
@@ -200,6 +207,31 @@ const {
           <span class="text-sm font-semibold text-zinc-900">Running average</span>
           <input type="checkbox" id="running-toggle" class="h-4 w-4 accent-emerald-700" />
         </label>
+        <label id="pace-toggle-row" class="flex cursor-pointer items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3">
+          <span class="text-sm font-semibold text-zinc-900">Average pace</span>
+          <input type="checkbox" id="pace-toggle" class="h-4 w-4 accent-emerald-700" />
+        </label>
+        <div id="pace-settings" class="hidden rounded-lg border border-zinc-200 bg-white px-4 py-3">
+          <p class="text-sm font-semibold text-zinc-900">Distance per value</p>
+          <p class="mt-1 text-xs leading-relaxed text-zinc-500">
+            Enter the distance each time value covers. A 400 m lap is 0.4 km. Pace is shown per km or per mile.
+          </p>
+          <div class="mt-3 flex gap-2">
+            <input
+              id="pace-distance"
+              type="number"
+              min="0"
+              step="any"
+              inputmode="decimal"
+              placeholder="1"
+              class="w-full min-w-0 rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 font-mono text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+            />
+            <select id="pace-unit" class="shrink-0 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100">
+              <option value="km">km</option>
+              <option value="mi">mi</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <div class="mt-8">
@@ -236,6 +268,15 @@ const {
   const statTotalCell = document.getElementById("stat-total-cell");
   const statRangeCell = document.getElementById("stat-range-cell");
   const statSpreadCell = document.getElementById("stat-spread-cell");
+  const statStddev = document.getElementById("stat-stddev");
+  const statStddevCell = document.getElementById("stat-stddev-cell");
+  const paceToggle = document.getElementById("pace-toggle");
+  const paceToggleRow = document.getElementById("pace-toggle-row");
+  const paceSettings = document.getElementById("pace-settings");
+  const paceDistance = document.getElementById("pace-distance");
+  const paceUnit = document.getElementById("pace-unit");
+  const paceResult = document.getElementById("pace-result");
+  const paceValue = document.getElementById("pace-value");
   const weightedToggle = document.getElementById("weighted-toggle");
   const runningToggle = document.getElementById("running-toggle");
   const runningResults = document.getElementById("running-results");
@@ -346,9 +387,12 @@ const {
       hr: 3600,
       hour: 3600,
       hours: 3600,
+      d: 86400,
+      day: 86400,
+      days: 86400,
     };
 
-    const matches = [...raw.matchAll(/(\d+(?:\.\d+)?)\s*(ms|seconds?|sec|s|minutes?|min|m|hours?|hr|h)\b/gi)];
+    const matches = [...raw.matchAll(/(\d+(?:\.\d+)?)\s*(ms|days?|d|seconds?|sec|s|minutes?|min|m|hours?|hr|h)\b/gi)];
 
     if (matches.length === 0) {
       return null;
@@ -482,19 +526,29 @@ const {
       return { error: true, line: index + 1, raw };
     }
 
-    return { seconds, weight, raw };
+    return { seconds, weight, raw, line: index + 1 };
   }
 
   function looksLikeClockTime(raw) {
-    const match = raw.match(/^\d{1,2}:\d{2}(?::\d{2})?$/);
+    const match = raw.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s*(?:am|pm))?$/i);
 
     if (!match) {
       return false;
     }
 
-    const [hours, minutes] = raw.split(":").map(Number);
+    const hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    const period = match[4];
 
-    return hours <= 23 && minutes <= 59;
+    if (minutes > 59) {
+      return false;
+    }
+
+    if (period) {
+      return hours >= 1 && hours <= 12;
+    }
+
+    return hours <= 23;
   }
 
   function looksLikeDuration(raw) {
@@ -597,6 +651,26 @@ const {
     }
 
     return entries.reduce((sum, entry) => sum + entry.seconds * entry.weight, 0) / totalWeight;
+  }
+
+  function sampleStdDev(entries) {
+    if (entries.length < 2) {
+      return null;
+    }
+
+    const mean = entries.reduce((sum, entry) => sum + entry.seconds, 0) / entries.length;
+    const variance =
+      entries.reduce((sum, entry) => sum + (entry.seconds - mean) ** 2, 0) / (entries.length - 1);
+
+    return Math.sqrt(variance);
+  }
+
+  function formatPace(seconds, unit) {
+    const total = Math.round(seconds);
+    const minutes = Math.floor(total / 60);
+    const secs = String(total % 60).padStart(2, "0");
+
+    return `${minutes}:${secs} /${unit}`;
   }
 
   function circularMean(entries) {
@@ -748,6 +822,13 @@ const {
             raw: entry.raw,
             message: "Looks like a duration. Switch to Duration average.",
           });
+        } else if (currentMode === "duration" && looksLikeClockTime(entry.raw)) {
+          issues.push({
+            type: "warning",
+            line: entry.line,
+            raw: entry.raw,
+            message: "Looks like a clock time. Switch to Clock time average.",
+          });
         } else {
           issues.push({
             type: "error",
@@ -785,6 +866,7 @@ const {
       : 0;
     const range = max - min;
     const spread = circularSpread(parsed);
+    const stddev = sampleStdDev(parsed);
 
     const format = formatSelect.value;
     const hasMean = mean !== null;
@@ -806,6 +888,7 @@ const {
     statMax.textContent = count ? formatValue(max, format) : "00:00:00";
     statMedian.textContent = count ? formatValue(median, format) : "00:00:00";
     statRange.textContent = count ? formatValue(range, format) : "00:00:00";
+    statStddev.textContent = count >= 2 && stddev !== null ? formatValue(stddev, format) : "–";
     statSpread.textContent = count
       ? hasSpread
         ? formatValue(spread, format)
@@ -815,7 +898,16 @@ const {
     const isClockMode = currentMode === "clock";
     statTotalCell.classList.toggle("hidden", isClockMode);
     statRangeCell.classList.toggle("hidden", isClockMode);
+    statStddevCell.classList.toggle("hidden", isClockMode);
     statSpreadCell.classList.toggle("hidden", !isClockMode);
+
+    const paceEnabled = !isClockMode && paceToggle.checked;
+    paceToggleRow.classList.toggle("hidden", isClockMode);
+    paceSettings.classList.toggle("hidden", !paceEnabled);
+    const distance = Number(paceDistance.value);
+    const paceSeconds = paceEnabled && count > 0 && hasMean && distance > 0 ? mean / distance : null;
+    paceResult.classList.toggle("hidden", paceSeconds === null);
+    paceValue.textContent = paceSeconds === null ? "–" : formatPace(paceSeconds, paceUnit.value);
 
     const shouldShowRunning = runningToggle.checked && count > 0;
     runningResults.classList.toggle("hidden", !shouldShowRunning);
@@ -855,13 +947,26 @@ const {
           entry.weight !== 1
             ? `<span class="ml-1 text-xs text-zinc-400">x ${escapeHtml(String(entry.weight))}</span>`
             : "";
+        const deviation =
+          currentMode === "duration" && mean !== null
+            ? entry.seconds - mean
+            : null;
+        const deviationLabel =
+          deviation === null
+            ? ""
+            : deviation === 0
+              ? `<span class="shrink-0 font-mono text-xs font-medium text-zinc-400">${formatValue(0, format)}</span>`
+              : `<span class="shrink-0 font-mono text-xs font-medium ${deviation > 0 ? "text-rose-600" : "text-emerald-600"}">${deviation > 0 ? "+" : "-"}${formatValue(Math.abs(deviation), format)}</span>`;
         item.innerHTML = `
           <span class="flex min-w-0 items-center gap-2">
             <span class="w-5 shrink-0 text-right font-mono text-zinc-400">${i + 1}</span>
             <span class="truncate font-mono text-zinc-700">${escapeHtml(entry.raw)}</span>
             ${weightLabel}
           </span>
-          <span class="shrink-0 font-mono font-semibold text-zinc-950">${formatValue(entry.seconds, format)}</span>
+          <span class="flex shrink-0 items-center gap-2">
+            <span class="font-mono font-semibold text-zinc-950">${formatValue(entry.seconds, format)}</span>
+            ${deviationLabel}
+          </span>
         `;
         parsedList.appendChild(item);
       }
@@ -923,6 +1028,9 @@ const {
   weightedToggle.addEventListener("change", render);
   runningToggle.addEventListener("change", render);
   formatSelect.addEventListener("change", render);
+  paceToggle.addEventListener("change", render);
+  paceDistance.addEventListener("input", render);
+  paceUnit.addEventListener("change", render);
 
   for (const button of modeButtons) {
     button.addEventListener("click", () => setMode(button.dataset.mode));
@@ -962,7 +1070,13 @@ const {
       currentMode === "clock"
         ? `Spread: ${statSpread.textContent.trim()}`
         : `Total: ${statTotal.textContent.trim()}`,
-      ...(currentMode === "clock" ? [] : [`Range: ${statRange.textContent.trim()}`]),
+      ...(currentMode === "clock"
+        ? []
+        : [
+            `Range: ${statRange.textContent.trim()}`,
+            `Std Dev: ${statStddev.textContent.trim()}`,
+            ...(paceValue.textContent.trim() !== "–" ? [`Pace: ${paceValue.textContent.trim()}`] : []),
+          ]),
     ].join("\n");
 
     try {
@@ -993,6 +1107,8 @@ const {
         : [
             ["Total", statTotal.textContent],
             ["Range", statRange.textContent],
+            ["Std Dev", statStddev.textContent],
+            ...(paceValue.textContent.trim() !== "–" ? [["Pace", paceValue.textContent.trim()]] : []),
           ]),
     ];
     const inputLines = textarea.value
@@ -1067,6 +1183,70 @@ const {
       history.replaceState(null, "", location.pathname);
       return false;
     }
+  }
+
+  function restoreFromQuery() {
+    const params = new URLSearchParams(location.search);
+    const hasParams =
+      params.has("values") ||
+      params.has("mode") ||
+      params.has("weighted") ||
+      params.has("running") ||
+      params.has("format") ||
+      params.has("pace") ||
+      params.has("pacedist") ||
+      params.has("paceunit");
+
+    if (!hasParams) {
+      return false;
+    }
+
+    const mode = params.get("mode");
+
+    if (mode === "clock" || mode === "duration") {
+      currentMode = mode;
+    }
+
+    const values = params.get("values");
+
+    if (values !== null) {
+      textarea.value = values;
+    }
+
+    if (params.get("weighted") === "1") {
+      weightedToggle.checked = true;
+    }
+
+    if (params.get("running") === "1") {
+      runningToggle.checked = true;
+    }
+
+    if (params.get("pace") === "1") {
+      paceToggle.checked = true;
+    }
+
+    const pacedist = params.get("pacedist");
+
+    if (pacedist !== null) {
+      paceDistance.value = pacedist;
+    }
+
+    const paceunit = params.get("paceunit");
+
+    if (paceunit === "km" || paceunit === "mi") {
+      paceUnit.value = paceunit;
+    }
+
+    setMode(currentMode);
+
+    const format = params.get("format");
+
+    if (format) {
+      formatSelect.value = format;
+    }
+
+    render();
+    return true;
   }
 
   function restoreFromLocalStorage() {
@@ -1191,10 +1371,14 @@ const {
   const restoredFromHash = restoreFromHash();
 
   if (!restoredFromHash) {
-    if (persistLocal) {
-      restoreFromLocalStorage();
-    } else {
-      render();
+    const restoredFromQuery = restoreFromQuery();
+
+    if (!restoredFromQuery) {
+      if (persistLocal) {
+        restoreFromLocalStorage();
+      } else {
+        render();
+      }
     }
   }
 </script>

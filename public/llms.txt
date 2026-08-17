@@ -2,7 +2,8 @@
 
 Average Time Calculator is a free, private browser tool for averaging time
 values. It supports elapsed durations, times of day, weighted averages, and
-running averages.
+running averages. All calculations run locally in the browser; no time data is
+uploaded or stored.
 
 ## Home
 
@@ -14,4 +15,53 @@ running averages.
 - Clock time average: use circular mean so values crossing midnight are correct.
 - Weighted average: sum time multiplied by weight, then divide by total weight.
 - Running average: cumulative mean after each value in a list.
-- Result context: average, total, count, min, max, median, and range or spread.
+- Average pace: in duration mode, divide the mean time by a fixed distance to
+  get pace per km or per mile.
+- Result context: average, total, count, min, max, median, range or spread,
+  and standard deviation.
+
+## Formulas
+
+- Duration average = total seconds / number of values.
+- Weighted average = sum(time x weight) / sum(weight). A line such as "4m 20s,3"
+  means that value represents three observations.
+- Clock time circular mean: convert each time to an angle on a 24-hour circle,
+  average the sine and cosine components, then convert the resulting angle back
+  to a time. This keeps 23:50 and 00:10 averaging near 00:00 instead of 12:00.
+- Standard deviation uses the sample formula (n - 1 denominator), matching the
+  spreadsheet function =STDEV().
+- Pace = mean duration in seconds / distance (km or mi), shown as m:ss per unit.
+
+## Example
+
+Input (one value per line):
+1:32.40, 1:31.20, 1:33.10, 1:30.85
+
+Each value is converted to seconds (92.40, 91.20, 93.10, 90.85), summed to
+367.55 seconds, and divided by 4, giving an average of 91.8875 seconds, or
+1:31.8875.
+
+## Edge Cases
+
+- Midnight crossing: 23:50 and 00:10 in clock mode average to 00:00 (circular
+  mean), not 12:00 (plain arithmetic).
+- Opposing times: 00:00 and 12:00 in clock mode are evenly opposite, so the
+  average is reported as "Not defined" rather than a meaningless middle point.
+- Milliseconds are preserved when present, e.g. 1:30.450.
+- Mixed formats are accepted in one list: HH:MM:SS, MM:SS, seconds, 1h 23m 45s,
+  1.5h, 45.5m, and 11:45 PM.
+- Day units are accepted, e.g. 1d 4h 30m.
+- Weighted mode rejects negative weights and lines without a weight.
+- Pace requires duration mode, at least one value, and a positive distance.
+- The calculator can be prefilled from a URL: ?mode=duration&values=1:30%0A1:25
+  with optional &weighted=1, &running=1, and &format=hhmmss. New lines are
+  encoded as %0A.
+
+## Boundaries
+
+- The tool does not add days to dates, convert time zones, or account for
+  daylight saving time.
+- It handles durations and single-day clock times only; it is not a date
+  calculator.
+- There is no limit on the number of input values, and results are computed in
+  full precision before display rounding.
