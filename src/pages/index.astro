@@ -139,15 +139,15 @@ const schema = {
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://average-time-calculator.com/#organization",
+      "@id": "https://www.average-time-calculator.com/#organization",
       name: "Average Time Calculator",
-      url: "https://average-time-calculator.com/",
+      url: "https://www.average-time-calculator.com/",
       foundingDate: "2026-08-13",
     },
     {
       "@type": "WebPage",
-      "@id": "https://average-time-calculator.com/#webpage",
-      url: "https://average-time-calculator.com/",
+      "@id": "https://www.average-time-calculator.com/#webpage",
+      url: "https://www.average-time-calculator.com/",
       name: "Average Time Calculator",
       description,
       inLanguage: "en",
@@ -155,26 +155,26 @@ const schema = {
       dateModified: "2026-08-17",
       lastReviewed: "2026-08-17",
       reviewedBy: {
-        "@id": "https://average-time-calculator.com/#organization",
+        "@id": "https://www.average-time-calculator.com/#organization",
       },
       mainEntity: {
-        "@id": "https://average-time-calculator.com/#app",
+        "@id": "https://www.average-time-calculator.com/#app",
       },
       about: {
-        "@id": "https://average-time-calculator.com/#app",
+        "@id": "https://www.average-time-calculator.com/#app",
       },
       primaryImageOfPage: {
         "@type": "ImageObject",
-        url: "https://average-time-calculator.com/og-image.png",
+        url: "https://www.average-time-calculator.com/og-image.png",
         width: 1200,
         height: 630,
       },
     },
     {
       "@type": "WebApplication",
-      "@id": "https://average-time-calculator.com/#app",
+      "@id": "https://www.average-time-calculator.com/#app",
       name: "Average Time Calculator",
-      url: "https://average-time-calculator.com/",
+      url: "https://www.average-time-calculator.com/",
       description,
       applicationCategory: "UtilityApplication",
       operatingSystem: "Any",
@@ -211,7 +211,7 @@ const schema = {
     },
     {
       "@type": "TechArticle",
-      "@id": "https://average-time-calculator.com/#article",
+      "@id": "https://www.average-time-calculator.com/#article",
       headline: "How to Calculate Average Time from Durations and Clock Times",
       description,
       articleSection: "Average time calculator",
@@ -219,27 +219,27 @@ const schema = {
       datePublished: "2026-08-13",
       dateModified: "2026-08-13",
       author: {
-        "@id": "https://average-time-calculator.com/#organization",
+        "@id": "https://www.average-time-calculator.com/#organization",
       },
       publisher: {
-        "@id": "https://average-time-calculator.com/#organization",
+        "@id": "https://www.average-time-calculator.com/#organization",
       },
       about: {
-        "@id": "https://average-time-calculator.com/#app",
+        "@id": "https://www.average-time-calculator.com/#app",
       },
       mainEntityOfPage: {
-        "@id": "https://average-time-calculator.com/#webpage",
+        "@id": "https://www.average-time-calculator.com/#webpage",
       },
     },
     {
       "@type": "WebSite",
-      "@id": "https://average-time-calculator.com/#website",
-      url: "https://average-time-calculator.com/",
+      "@id": "https://www.average-time-calculator.com/#website",
+      url: "https://www.average-time-calculator.com/",
       name: "Average Time Calculator",
       description,
       inLanguage: "en",
       publisher: {
-        "@id": "https://average-time-calculator.com/#organization",
+        "@id": "https://www.average-time-calculator.com/#organization",
       },
     },
   ],
@@ -249,7 +249,7 @@ const schema = {
 <Layout
   title={title}
   description={description}
-  canonical="https://average-time-calculator.com/"
+  canonical="https://www.average-time-calculator.com"
   schema={schema}
 >
   <section class="section-pad pb-20 pt-12 sm:pt-16">
@@ -1661,7 +1661,7 @@ const schema = {
                 <span class="mt-1 block text-xs text-zinc-400">400–1400 px</span>
               </label>
             </div>
-            <pre class="mt-4 w-full max-w-full overflow-x-auto rounded-lg bg-zinc-950 p-4 text-sm leading-relaxed text-emerald-100"><code id="embed-code-output" class="block whitespace-pre-wrap break-all">&lt;iframe src="https://average-time-calculator.com/embed" width="100%" height="720" loading="lazy" title="Average Time Calculator"&gt;&lt;/iframe&gt;</code></pre>
+            <pre class="mt-4 w-full max-w-full overflow-x-auto rounded-lg bg-zinc-950 p-4 text-sm leading-relaxed text-emerald-100"><code id="embed-code-output" class="block whitespace-pre-wrap break-all">&lt;iframe src="https://www.average-time-calculator.com/embed" width="100%" height="720" loading="lazy" title="Average Time Calculator"&gt;&lt;/iframe&gt;</code></pre>
             <button type="button" id="copy-embed-code" class="mt-4 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800 active:translate-y-px">
               Copy code
             </button>
@@ -1831,7 +1831,7 @@ const schema = {
       const height = Math.min(1400, Math.max(400, Number.parseInt(embedHeight.value, 10) || 720));
       embedHeight.value = height;
       embedCodeOutput.textContent =
-        '<iframe src="https://average-time-calculator.com/embed" width="' +
+        '<iframe src="https://www.average-time-calculator.com/embed" width="' +
         width +
         '" height="' +
         height +

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://average-time-calculator.com/sitemap.xml
+Sitemap: https://www.average-time-calculator.com/sitemap-index.xml
