@@ -417,6 +417,42 @@ const schema = {
           <p class="mt-3 text-sm leading-7 text-zinc-600">
             Plain arithmetic on 23:50 and 00:10 produces 12:00. Circular averaging correctly gives 00:00 because both values sit close together on the 24-hour clock.
           </p>
+          <svg viewBox="0 0 400 240" role="img" aria-labelledby="midnight-diagram-title" class="mt-5 w-full max-w-[400px]">
+            <title id="midnight-diagram-title">Circular averaging of 23:50 and 00:10 gives 00:00 instead of 12:00</title>
+            <!-- 24-hour circle -->
+            <circle cx="120" cy="130" r="92" fill="none" stroke="#a7f3d0" stroke-width="2.5" />
+            <g stroke="#a1a1aa" stroke-width="2">
+              <line x1="120" y1="34" x2="120" y2="42" />
+              <line x1="208" y1="130" x2="216" y2="130" />
+              <line x1="120" y1="218" x2="120" y2="226" />
+              <line x1="24" y1="130" x2="32" y2="130" />
+            </g>
+            <text x="228" y="152" font-size="11" fill="#71717a">06:00</text>
+            <text x="8" y="134" font-size="11" fill="#71717a">18:00</text>
+            <!-- input values: 23:50 (357.5 deg) and 00:10 (2.5 deg), adjacent across midnight -->
+            <circle cx="116" cy="38" r="4" fill="#047857" />
+            <circle cx="124" cy="38" r="4" fill="#047857" />
+            <text x="86" y="64" text-anchor="end" font-size="12" font-weight="600" fill="#047857">23:50</text>
+            <text x="154" y="64" text-anchor="start" font-size="12" font-weight="600" fill="#047857">00:10</text>
+            <!-- circular average result at midnight -->
+            <circle cx="120" cy="38" r="6" fill="#059669" stroke="#fff" stroke-width="2" />
+            <text x="120" y="16" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">Average 00:00</text>
+            <!-- plain arithmetic result, wrong -->
+            <g stroke="#a1a1aa" stroke-width="2">
+              <line x1="112" y1="224" x2="128" y2="208" />
+              <line x1="128" y1="224" x2="112" y2="208" />
+            </g>
+            <text x="140" y="222" font-size="11" fill="#a1a1aa">12:00</text>
+            <!-- result column -->
+            <g font-size="13">
+              <text x="244" y="52" fill="#52525b">23:50 &rarr; 357.5&deg;</text>
+              <text x="244" y="74" fill="#52525b">00:10 &rarr; 2.5&deg;</text>
+              <text x="244" y="110" font-weight="600" fill="#18181b">Circular average</text>
+              <text x="244" y="132" font-weight="700" fill="#047857">= 00:00</text>
+              <text x="244" y="168" font-weight="600" fill="#18181b">Plain arithmetic</text>
+              <text x="244" y="190" fill="#a1a1aa">= 12:00</text>
+            </g>
+          </svg>
         </div>
       </div>
     </div>
@@ -431,6 +467,38 @@ const schema = {
         <p class="mt-5 max-w-3xl text-base leading-relaxed text-zinc-600">
           The same principle applies to both modes: convert every value to a common unit first. The difference is what happens after conversion. Duration data is measured on a straight line, while clock time is measured on a circle that wraps every 24 hours.
         </p>
+        <svg viewBox="0 0 560 200" role="img" aria-labelledby="line-vs-circle-title" class="mt-8 w-full max-w-[720px]">
+          <title id="line-vs-circle-title">Durations average on a straight line, while clock times average on a 24-hour circle</title>
+          <!-- duration: straight line -->
+          <text x="150" y="22" text-anchor="middle" font-size="13" font-weight="600" fill="#18181b">Duration &mdash; a straight line</text>
+          <line x1="40" y1="115" x2="260" y2="115" stroke="#a7f3d0" stroke-width="3" stroke-linecap="round" />
+          <circle cx="70" cy="115" r="5" fill="#71717a" />
+          <text x="70" y="96" text-anchor="middle" font-size="12" fill="#52525b">1:25</text>
+          <circle cx="230" cy="115" r="5" fill="#71717a" />
+          <text x="230" y="96" text-anchor="middle" font-size="12" fill="#52525b">1:35</text>
+          <circle cx="150" cy="115" r="7" fill="#059669" stroke="#fff" stroke-width="2" />
+          <text x="150" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="#047857">Average 1:30</text>
+          <text x="150" y="168" text-anchor="middle" font-size="12" fill="#71717a">Average is the middle value</text>
+          <!-- divider -->
+          <line x1="280" y1="30" x2="280" y2="172" stroke="#e4e4e7" stroke-width="1.5" stroke-dasharray="4 4" />
+          <!-- clock time: circle -->
+          <text x="420" y="16" text-anchor="middle" font-size="13" font-weight="600" fill="#18181b">Clock time &mdash; a circle</text>
+          <circle cx="420" cy="115" r="85" fill="none" stroke="#a7f3d0" stroke-width="3" />
+          <g stroke="#a1a1aa" stroke-width="2">
+            <line x1="420" y1="26" x2="420" y2="34" />
+            <line x1="501" y1="115" x2="509" y2="115" />
+            <line x1="420" y1="192" x2="420" y2="200" />
+            <line x1="331" y1="115" x2="339" y2="115" />
+          </g>
+          <!-- 23:50 (357.5 deg) and 00:10 (2.5 deg) are neighbors at the top -->
+          <circle cx="416" cy="30" r="4" fill="#047857" />
+          <circle cx="424" cy="30" r="4" fill="#047857" />
+          <text x="398" y="52" text-anchor="end" font-size="12" font-weight="600" fill="#047857">23:50</text>
+          <text x="442" y="52" text-anchor="start" font-size="12" font-weight="600" fill="#047857">00:10</text>
+          <circle cx="420" cy="30" r="6" fill="#059669" stroke="#fff" stroke-width="2" />
+          <text x="420" y="110" text-anchor="middle" font-size="12" font-weight="700" fill="#047857">Average 00:00</text>
+          <text x="420" y="170" text-anchor="middle" font-size="12" fill="#71717a">23:50 and 00:10 are neighbors</text>
+        </svg>
       </div>
 
       <div class="mt-10 grid gap-6 lg:grid-cols-2">
@@ -684,6 +752,97 @@ const schema = {
           <p class="mt-3 text-sm leading-relaxed text-zinc-600">
             Turn scattered time logs into a clear average, total, and range for planning.
           </p>
+        </div>
+      </div>
+
+      <div class="mt-14">
+        <div class="max-w-3xl">
+          <h3 class="text-2xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950">
+            Step-by-step workflows
+          </h3>
+          <p class="mt-3 max-w-2xl text-base leading-relaxed text-zinc-600">
+            The same calculator, applied to three common jobs: a weekly call report, a training session, and a sleep log.
+          </p>
+        </div>
+        <div class="mt-8 grid gap-6 lg:grid-cols-3">
+          <div class="flex flex-col rounded-lg border border-zinc-200 bg-white p-6">
+            <h4 class="text-base font-semibold text-zinc-950">Call center AHT weekly report</h4>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              A plain average treats a 3-call group the same as a 120-call group. Weighted duration keeps the report honest.
+            </p>
+            <ol class="mt-4 space-y-2.5">
+              <li class="flex gap-2.5 text-sm leading-relaxed text-zinc-600">
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-700">1</span>
+                <span>Export the week's calls as CSV: one row per group with duration and call count.</span>
+              </li>
+              <li class="flex gap-2.5 text-sm leading-relaxed text-zinc-600">
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-700">2</span>
+                <span>Import the CSV and choose Weighted duration, using call count as the weight.</span>
+              </li>
+              <li class="flex gap-2.5 text-sm leading-relaxed text-zinc-600">
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-700">3</span>
+                <span>Report the weighted mean, then compare it with the median to flag outlier shifts.</span>
+              </li>
+            </ol>
+            <div class="mt-auto pt-5">
+              <div class="rounded-md bg-zinc-50 p-3 text-xs leading-relaxed">
+                <p class="font-semibold text-zinc-700">Example</p>
+                <p class="mt-1 font-mono text-zinc-600">3 calls &times; 20 min + 120 calls &times; 6 min &rarr; weighted 6:20, not 13:00</p>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col rounded-lg border border-zinc-200 bg-white p-6">
+            <h4 class="text-base font-semibold text-zinc-950">Runner pacing and training</h4>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Interval splits jump around. The median shows typical effort; the mean is pulled by one bad rep.
+            </p>
+            <ol class="mt-4 space-y-2.5">
+              <li class="flex gap-2.5 text-sm leading-relaxed text-zinc-600">
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-700">1</span>
+                <span>Paste the session's splits in Duration mode — <span class="font-mono">1:32.40</span> format works as-is.</span>
+              </li>
+              <li class="flex gap-2.5 text-sm leading-relaxed text-zinc-600">
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-700">2</span>
+                <span>Check median, min, max, and range to see both typical effort and consistency.</span>
+              </li>
+              <li class="flex gap-2.5 text-sm leading-relaxed text-zinc-600">
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-700">3</span>
+                <span>Compare each rep against the median to decide whether to push or recover.</span>
+              </li>
+            </ol>
+            <div class="mt-auto pt-5">
+              <div class="rounded-md bg-zinc-50 p-3 text-xs leading-relaxed">
+                <p class="font-semibold text-zinc-700">Example</p>
+                <p class="mt-1 font-mono text-zinc-600">5 &times; 1 km: 3:58, 4:02, 4:11, 4:03, 5:20 &rarr; median 4:03 vs mean 4:19</p>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col rounded-lg border border-zinc-200 bg-white p-6">
+            <h4 class="text-base font-semibold text-zinc-950">Sleep schedule statistics</h4>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Bedtimes around midnight break a normal average: 23:50 and 00:10 average to 12:00 instead of 00:00.
+            </p>
+            <ol class="mt-4 space-y-2.5">
+              <li class="flex gap-2.5 text-sm leading-relaxed text-zinc-600">
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-700">1</span>
+                <span>Paste the week's bedtimes from your sleep tracker.</span>
+              </li>
+              <li class="flex gap-2.5 text-sm leading-relaxed text-zinc-600">
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-700">2</span>
+                <span>Switch to Clock time mode — values wrap correctly across midnight.</span>
+              </li>
+              <li class="flex gap-2.5 text-sm leading-relaxed text-zinc-600">
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-700">3</span>
+                <span>Use the circular spread to check whether your schedule is consistent.</span>
+              </li>
+            </ol>
+            <div class="mt-auto pt-5">
+              <div class="rounded-md bg-zinc-50 p-3 text-xs leading-relaxed">
+                <p class="font-semibold text-zinc-700">Example</p>
+                <p class="mt-1 font-mono text-zinc-600">23:50, 00:10, 00:05 &rarr; circular mean 00:02 (plain average: 08:02)</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1476,20 +1635,42 @@ const schema = {
           <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
             Add the calculator to your running, sleep, or workforce article. All calculations happen in the visitor's browser, so no time data is uploaded or stored.
           </p>
+          <div class="mt-6 rounded-lg border border-zinc-200 bg-white p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Share a result</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Use the Share button in the calculator to copy a link that restores your current mode, values, and options.
+            </p>
+          </div>
         </div>
         <div class="min-w-0 grid gap-4">
           <div class="rounded-lg border border-zinc-200 bg-white p-6">
             <h3 class="text-base font-semibold text-zinc-950">Embed code</h3>
-            <pre class="mt-4 w-full max-w-full overflow-x-auto rounded-lg bg-zinc-950 p-4 text-sm leading-relaxed text-emerald-100"><code class="block whitespace-pre-wrap break-all">&lt;iframe src="https://average-time-calculator.com/embed" width="100%" height="720" loading="lazy" title="Average Time Calculator"&gt;&lt;/iframe&gt;</code></pre>
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+              <label class="block">
+                <span class="text-xs font-semibold uppercase tracking-wide text-zinc-500">Width</span>
+                <select id="embed-width" class="mt-1.5 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100">
+                  <option value="100%">100% — responsive</option>
+                  <option value="480px">480 px</option>
+                  <option value="600px">600 px</option>
+                  <option value="720px">720 px</option>
+                </select>
+              </label>
+              <label class="block">
+                <span class="text-xs font-semibold uppercase tracking-wide text-zinc-500">Height</span>
+                <input id="embed-height" type="number" min="400" max="1400" step="20" value="720" class="mt-1.5 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+                <span class="mt-1 block text-xs text-zinc-400">400–1400 px</span>
+              </label>
+            </div>
+            <pre class="mt-4 w-full max-w-full overflow-x-auto rounded-lg bg-zinc-950 p-4 text-sm leading-relaxed text-emerald-100"><code id="embed-code-output" class="block whitespace-pre-wrap break-all">&lt;iframe src="https://average-time-calculator.com/embed" width="100%" height="720" loading="lazy" title="Average Time Calculator"&gt;&lt;/iframe&gt;</code></pre>
             <button type="button" id="copy-embed-code" class="mt-4 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800 active:translate-y-px">
               Copy code
             </button>
           </div>
           <div class="rounded-lg border border-zinc-200 bg-white p-6">
-            <h3 class="text-base font-semibold text-zinc-950">Share a result</h3>
-            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
-              Use the Share button in the calculator to copy a link that restores your current mode, values, and options.
-            </p>
+            <h3 class="text-base font-semibold text-zinc-950">Live preview</h3>
+            <div id="embed-preview-wrap" class="mt-4 h-80 overflow-hidden rounded-md border border-zinc-200 bg-[#fafafa]">
+              <iframe id="embed-preview" src="/embed" width="600" height="720" loading="lazy" title="Average Time Calculator embed preview" style="border:0;display:block;transform-origin:top left;pointer-events:none"></iframe>
+            </div>
           </div>
         </div>
       </div>
@@ -1634,14 +1815,46 @@ const schema = {
 
   <script>
     const copyEmbedCodeButton = document.getElementById("copy-embed-code");
+    const embedWidth = document.getElementById("embed-width");
+    const embedHeight = document.getElementById("embed-height");
+    const embedCodeOutput = document.getElementById("embed-code-output");
+    const embedPreview = document.getElementById("embed-preview");
+    const embedPreviewWrap = document.getElementById("embed-preview-wrap");
+
+    function embedPixelWidth(width) {
+      return width === "100%" ? 600 : Number.parseInt(width, 10);
+    }
+
+    function renderEmbed() {
+      if (!embedCodeOutput || !embedPreview || !embedPreviewWrap) return;
+      const width = embedWidth.value;
+      const height = Math.min(1400, Math.max(400, Number.parseInt(embedHeight.value, 10) || 720));
+      embedHeight.value = height;
+      embedCodeOutput.textContent =
+        '<iframe src="https://average-time-calculator.com/embed" width="' +
+        width +
+        '" height="' +
+        height +
+        '" loading="lazy" title="Average Time Calculator"></iframe>';
+      const base = embedPixelWidth(width);
+      const scale = Math.min(1, embedPreviewWrap.clientWidth / base);
+      embedPreview.setAttribute("width", base);
+      embedPreview.setAttribute("height", height);
+      embedPreview.style.transform = "scale(" + scale + ")";
+      embedPreviewWrap.style.height = Math.min(height * scale, 360) + "px";
+    }
+
+    if (embedWidth && embedHeight) {
+      embedWidth.addEventListener("change", renderEmbed);
+      embedHeight.addEventListener("input", renderEmbed);
+      window.addEventListener("resize", renderEmbed);
+      renderEmbed();
+    }
 
     if (copyEmbedCodeButton) {
       copyEmbedCodeButton.addEventListener("click", async () => {
-        const embedCode =
-          '<iframe src="https://average-time-calculator.com/embed" width="100%" height="720" loading="lazy" title="Average Time Calculator"></iframe>';
-
         try {
-          await navigator.clipboard.writeText(embedCode);
+          await navigator.clipboard.writeText(embedCodeOutput.textContent);
           copyEmbedCodeButton.textContent = "Copied";
           window.setTimeout(() => {
             copyEmbedCodeButton.textContent = "Copy code";
