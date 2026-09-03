@@ -5,38 +5,73 @@ const title = "Privacy Policy - Average Time Calculator";
 const description =
   "Privacy policy for Average Time Calculator. The calculator is private by design — time values never leave your browser and no data is stored on a server.";
 const dateModified = "2026-09-03";
+const datePublished = "2026-08-13";
+
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.average-time-calculator.com/#organization",
+      name: "Average Time Calculator",
+      url: "https://www.average-time-calculator.com/",
+      sameAs: ["https://github.com/jiusongvip/average-time-calculator"],
+      foundingDate: "2026-08-13",
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://www.average-time-calculator.com/privacy/#webpage",
+      url: "https://www.average-time-calculator.com/privacy/",
+      name: "Privacy Policy - Average Time Calculator",
+      description,
+      inLanguage: "en",
+      datePublished,
+      dateModified,
+      publisher: {
+        "@id": "https://www.average-time-calculator.com/#organization",
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://www.average-time-calculator.com/#website",
+      url: "https://www.average-time-calculator.com/",
+      name: "Average Time Calculator",
+      description,
+      inLanguage: "en",
+      publisher: {
+        "@id": "https://www.average-time-calculator.com/#organization",
+      },
+    },
+  ],
+};
 ---
 
-<Layout title={title} description={description} canonical="https://www.average-time-calculator.com/privacy/">
+<Layout title={title} description={description} canonical="https://www.average-time-calculator.com/privacy/" schema={schema}>
   <section class="section-pad">
     <div class="page-shell max-w-3xl">
       <p class="text-sm font-semibold uppercase tracking-[0.08em] text-emerald-700">Privacy</p>
       <h1 class="mt-4 text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">Privacy</h1>
       <p class="mt-5 text-base leading-relaxed text-zinc-600">The calculator is private by design. Time values never leave your browser.</p>
 
-      <div class="mt-8 grid gap-4 sm:grid-cols-2">
-        <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
-          <h2 class="text-base font-semibold text-zinc-950">How your data is handled</h2>
-          <div class="mt-4 grid gap-4">
-            <div>
-              <h3 class="text-sm font-semibold text-zinc-900">No server storage</h3>
-              <p class="mt-2 text-sm leading-relaxed text-zinc-600">All calculations run locally. Values are not uploaded, stored, or shared.</p>
-            </div>
-            <div>
-              <h3 class="text-sm font-semibold text-zinc-900">Local storage</h3>
-              <p class="mt-2 text-sm leading-relaxed text-zinc-600">Your mode and options may be remembered on your device only.</p>
-            </div>
-            <div>
-              <h3 class="text-sm font-semibold text-zinc-900">Share links</h3>
-              <p class="mt-2 text-sm leading-relaxed text-zinc-600">Sharing encodes your input in the URL fragment; nothing is sent to a server.</p>
-            </div>
-            <div>
-              <h3 class="text-sm font-semibold text-zinc-900">No ads or trackers</h3>
-              <p class="mt-2 text-sm leading-relaxed text-zinc-600">No accounts, advertising networks, analytics, or cookies.</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">Is my data stored on a server?</h2>
+      <p class="mt-3 text-sm leading-relaxed text-zinc-600">No. All calculations run locally. Values are not uploaded, stored, or shared.</p>
+      <h3 class="mt-6 text-lg font-semibold tracking-[-0.01em] text-zinc-950">What happens to the values I enter?</h3>
+      <p class="mt-2 text-sm leading-relaxed text-zinc-600">Your time values are processed entirely in your browser and are never transmitted over the network.</p>
+
+      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">What does the calculator remember?</h2>
+      <p class="mt-3 text-sm leading-relaxed text-zinc-600">Your mode and options may be remembered on your device only, using local storage.</p>
+      <h3 class="mt-6 text-lg font-semibold tracking-[-0.01em] text-zinc-950">Can I clear stored settings?</h3>
+      <p class="mt-2 text-sm leading-relaxed text-zinc-600">Clearing your browser data or site storage removes these local preferences.</p>
+
+      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">How do share links work?</h2>
+      <p class="mt-3 text-sm leading-relaxed text-zinc-600">Sharing encodes your input in the URL fragment; nothing is sent to a server.</p>
+      <h3 class="mt-6 text-lg font-semibold tracking-[-0.01em] text-zinc-950">Do share links expose my data to others?</h3>
+      <p class="mt-2 text-sm leading-relaxed text-zinc-600">A share link contains whatever values you encoded. Share it only with people you intend to see those values.</p>
+
+      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">Are there ads or trackers?</h2>
+      <p class="mt-3 text-sm leading-relaxed text-zinc-600">No accounts, advertising networks, analytics, or cookies.</p>
+      <h3 class="mt-6 text-lg font-semibold tracking-[-0.01em] text-zinc-950">Does the page set any cookies?</h3>
+      <p class="mt-2 text-sm leading-relaxed text-zinc-600">The calculator sets no cookies and runs no third-party advertising or analytics scripts.</p>
     </div>
   </section>
 </Layout>
