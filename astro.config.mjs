@@ -8,7 +8,11 @@ export default defineConfig({
   build: {
     inlineStylesheets: "always",
   },
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      filter: (page) => !page.includes("/embed/"),
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },
