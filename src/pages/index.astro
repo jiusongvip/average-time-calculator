@@ -1384,6 +1384,7 @@ const schema = {
 
     function renderEmbed() {
       if (!embedCodeOutput || !embedPreview || !embedPreviewWrap) return;
+      const wrapWidth = embedPreviewWrap.clientWidth;
       const width = embedWidth.value;
       const height = Math.min(1400, Math.max(400, Number.parseInt(embedHeight.value, 10) || 720));
       embedHeight.value = height;
@@ -1394,7 +1395,7 @@ const schema = {
         height +
         '" loading="lazy" title="Average Time Calculator"></iframe>';
       const base = embedPixelWidth(width);
-      const scale = Math.min(1, embedPreviewWrap.clientWidth / base);
+      const scale = Math.min(1, wrapWidth / base);
       embedPreview.setAttribute("width", base);
       embedPreview.setAttribute("height", height);
       embedPreview.style.transform = "scale(" + scale + ")";
