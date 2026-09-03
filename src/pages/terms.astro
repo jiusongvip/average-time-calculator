@@ -1,0 +1,29 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const title = "Terms of Use - Average Time Calculator";
+const description =
+  "Terms of use for Average Time Calculator. The calculator is free to use and content is provided as-is for informational purposes.";
+const dateModified = "2026-09-03";
+---
+
+<Layout title={title} description={description} canonical="https://www.average-time-calculator.com/terms/">
+  <section class="section-pad">
+    <div class="page-shell max-w-3xl">
+      <p class="text-sm font-semibold uppercase tracking-[0.08em] text-emerald-700">Terms</p>
+      <h1 class="mt-4 text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">Terms of use</h1>
+      <p class="mt-5 text-base leading-relaxed text-zinc-600">The calculator is free to use, and the content on this page is provided as-is for informational purposes.</p>
+
+      <div class="mt-8 grid gap-4 sm:grid-cols-2">
+        <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+          <h2 class="text-base font-semibold text-zinc-950">No warranty</h2>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">Results are informational. Verify important figures against your own records or a spreadsheet before relying on them.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+          <h2 class="text-base font-semibold text-zinc-950">License</h2>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">Source code is on GitHub. Page content may be quoted with attribution, such as a link back here.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

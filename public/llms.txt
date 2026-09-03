@@ -5,9 +5,13 @@ values. It supports elapsed durations, times of day, weighted averages, and
 running averages. All calculations run locally in the browser; no time data is
 uploaded or stored.
 
-## Home
+## Pages
 
 - Average Time Calculator: https://www.average-time-calculator.com/
+- About: https://www.average-time-calculator.com/about/
+- Contact: https://www.average-time-calculator.com/contact/
+- Privacy Policy: https://www.average-time-calculator.com/privacy/
+- Terms of Use: https://www.average-time-calculator.com/terms/
 
 ## Key Concepts
 

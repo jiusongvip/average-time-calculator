@@ -1,0 +1,37 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const title = "Contact - Average Time Calculator";
+const description =
+  "Contact the Average Time Calculator team. Report bugs, request features, or ask about the math through GitHub issues.";
+const dateModified = "2026-09-03";
+---
+
+<Layout title={title} description={description} canonical="https://www.average-time-calculator.com/contact/">
+  <section class="section-pad">
+    <div class="page-shell max-w-3xl">
+      <p class="text-sm font-semibold uppercase tracking-[0.08em] text-emerald-700">Contact</p>
+      <h1 class="mt-4 text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">Contact</h1>
+      <p class="mt-5 text-base leading-relaxed text-zinc-600">
+        Open a GitHub issue to report bugs, request features, or ask about the math. The source code is also on GitHub for anyone to review.
+      </p>
+
+      <div class="mt-8 grid gap-4 sm:grid-cols-2">
+        <a href="https://github.com/jiusongvip/average-time-calculator/issues" target="_blank" rel="noopener noreferrer" class="rounded-lg border border-zinc-200 bg-zinc-50 p-6 transition hover:border-emerald-300 hover:bg-emerald-50/60">
+          <h2 class="text-base font-semibold text-zinc-950">GitHub issues</h2>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">Report bugs, request features, or ask how the math works. Issues are public so anyone can see the answer.</p>
+        </a>
+        <a href="https://github.com/jiusongvip/average-time-calculator" target="_blank" rel="noopener noreferrer" class="rounded-lg border border-zinc-200 bg-zinc-50 p-6 transition hover:border-emerald-300 hover:bg-emerald-50/60">
+          <h2 class="text-base font-semibold text-zinc-950">Source code</h2>
+          <p class="mt-2 text-sm leading-relaxed text-zinc-600">Read the parser, circular-mean math, and every formula used on this page.</p>
+        </a>
+      </div>
+
+      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">Response time</h2>
+      <p class="mt-3 text-sm leading-relaxed text-zinc-600">Issues are usually answered within a few days. Subscribe to the issue to follow the discussion.</p>
+
+      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">Corrections policy</h2>
+      <p class="mt-3 text-sm leading-relaxed text-zinc-600">Every calculation is checked against public references. When a report is confirmed, it is fixed and logged in the maintenance log.</p>
+    </div>
+  </section>
+</Layout>
