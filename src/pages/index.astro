@@ -1413,7 +1413,7 @@ const schema = {
           Verify every calculation yourself
         </h2>
         <p class="mt-5 max-w-3xl text-base leading-relaxed text-zinc-600">
-          Nothing on this page is a black box. Every algorithm maps to a standard spreadsheet function, so you can reproduce the result in Excel or Google Sheets. You do not need to take the tool on faith.
+          Nothing on this page is a black box. Every algorithm maps to a standard spreadsheet function, so you can reproduce the result in Excel or Google Sheets. Google's own documentation, for example, defines the AVERAGE function as one that "returns the numerical average value in a dataset" (<a href="https://support.google.com/docs/answer/3093615" target="_blank" rel="noopener noreferrer" class="text-emerald-700 underline decoration-emerald-300 underline-offset-2 hover:text-emerald-800">Google Support</a>), and that is exactly the arithmetic this page applies to time values. You do not need to take the tool on faith.
         </p>
       </div>
 
@@ -1499,47 +1499,61 @@ const schema = {
           These are the documented functions and concepts behind the formulas on this page. Each formula maps to a published source you can open to verify the math.
         </p>
         <ul class="mt-6 grid gap-3 text-sm leading-relaxed text-zinc-700">
-          <li>
-            <a href="https://support.google.com/docs/answer/3093615" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
-              Google Sheets AVERAGE function
-            </a>
-            <span class="text-zinc-500"> - Google's documentation states that AVERAGE "returns the numerical average value in a dataset, ignoring text." This page reproduces that same arithmetic for time values stored as durations.</span>
+          <li class="rounded-lg border border-zinc-200 bg-white p-5">
+            <blockquote class="text-zinc-700">
+              "Returns the numerical average value in a dataset, ignoring text."
+            </blockquote>
+            <cite class="mt-2 block text-xs not-italic text-zinc-500">
+              Google — <a href="https://support.google.com/docs/answer/3093615" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">Google Sheets AVERAGE function</a>. This page reproduces that same arithmetic for time values stored as durations.
+            </cite>
           </li>
-          <li>
-            <a href="https://support.google.com/docs/answer/3094294" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
-              Google Sheets SUMPRODUCT function
-            </a>
-            <span class="text-zinc-500"> - Google's documentation states that SUMPRODUCT "calculates the sum of the products of corresponding entries in two equal-sized arrays." That is exactly the weighted-average math used here.</span>
+          <li class="rounded-lg border border-zinc-200 bg-white p-5">
+            <blockquote class="text-zinc-700">
+              "Calculates the sum of the products of corresponding entries in two equal-sized arrays."
+            </blockquote>
+            <cite class="mt-2 block text-xs not-italic text-zinc-500">
+              Google — <a href="https://support.google.com/docs/answer/3094294" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">Google Sheets SUMPRODUCT function</a>. That is exactly the weighted-average math used here.
+            </cite>
           </li>
-          <li>
-            <a href="https://en.wikipedia.org/wiki/Circular_mean" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
-              Circular mean (Wikipedia)
-            </a>
-            <span class="text-zinc-500"> - Wikipedia describes the circular mean as "a mean of circular quantities" such as clock times, where the 24-hour wrap means 23:50 and 00:10 are close together. This page applies that definition in clock time mode.</span>
+          <li class="rounded-lg border border-zinc-200 bg-white p-5">
+            <blockquote class="text-zinc-700">
+              "A mean of circular quantities" such as clock times, where the 24-hour wrap means 23:50 and 00:10 are close together.
+            </blockquote>
+            <cite class="mt-2 block text-xs not-italic text-zinc-500">
+              Wikipedia — <a href="https://en.wikipedia.org/wiki/Circular_mean" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">Circular mean</a>. This page applies that definition in clock time mode.
+            </cite>
           </li>
-          <li>
-            <a href="https://en.wikipedia.org/wiki/Arithmetic_mean" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
-              Arithmetic mean (Wikipedia)
-            </a>
-            <span class="text-zinc-500"> - Wikipedia defines the arithmetic mean as "the sum of a collection of numbers divided by the count of numbers in the collection," which is the duration-mode formula on this page.</span>
+          <li class="rounded-lg border border-zinc-200 bg-white p-5">
+            <blockquote class="text-zinc-700">
+              "The sum of a collection of numbers divided by the count of numbers in the collection."
+            </blockquote>
+            <cite class="mt-2 block text-xs not-italic text-zinc-500">
+              Wikipedia — <a href="https://en.wikipedia.org/wiki/Arithmetic_mean" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">Arithmetic mean</a>. That is the duration-mode formula on this page.
+            </cite>
           </li>
-          <li>
-            <a href="https://en.wikipedia.org/wiki/Weighted_arithmetic_mean" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
-              Weighted arithmetic mean (Wikipedia)
-            </a>
-            <span class="text-zinc-500"> - Wikipedia defines the weighted mean as the mean "in which some elements of the data set carry more weight than others," matching the weighted mode where a time with a larger weight counts more times.</span>
+          <li class="rounded-lg border border-zinc-200 bg-white p-5">
+            <blockquote class="text-zinc-700">
+              The mean "in which some elements of the data set carry more weight than others."
+            </blockquote>
+            <cite class="mt-2 block text-xs not-italic text-zinc-500">
+              Wikipedia — <a href="https://en.wikipedia.org/wiki/Weighted_arithmetic_mean" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">Weighted arithmetic mean</a>. Matches the weighted mode where a time with a larger weight counts more times.
+            </cite>
           </li>
-          <li>
-            <a href="https://en.wikipedia.org/wiki/Median" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
-              Median (Wikipedia)
-            </a>
-            <span class="text-zinc-500"> - Wikipedia defines the median as "the value separating the higher half from the lower half of a data sample," which this page computes to protect results against outliers.</span>
+          <li class="rounded-lg border border-zinc-200 bg-white p-5">
+            <blockquote class="text-zinc-700">
+              "The value separating the higher half from the lower half of a data sample."
+            </blockquote>
+            <cite class="mt-2 block text-xs not-italic text-zinc-500">
+              Wikipedia — <a href="https://en.wikipedia.org/wiki/Median" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">Median</a>. This page computes it to protect results against outliers.
+            </cite>
           </li>
-          <li>
-            <a href="https://en.wikipedia.org/wiki/Standard_deviation" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
-              Standard deviation (Wikipedia)
-            </a>
-            <span class="text-zinc-500"> - Wikipedia defines standard deviation as "a measure of the amount of variation of a set of values," and the sample formula with n − 1 used here matches the spreadsheet =STDEV() function.</span>
+          <li class="rounded-lg border border-zinc-200 bg-white p-5">
+            <blockquote class="text-zinc-700">
+              "A measure of the amount of variation of a set of values."
+            </blockquote>
+            <cite class="mt-2 block text-xs not-italic text-zinc-500">
+              Wikipedia — <a href="https://en.wikipedia.org/wiki/Standard_deviation" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">Standard deviation</a>. The sample formula with n − 1 used here matches the spreadsheet =STDEV() function.
+            </cite>
           </li>
         </ul>
       </div>
