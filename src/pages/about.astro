@@ -5,9 +5,69 @@ const title = "About - Average Time Calculator";
 const description =
   "About the Average Time Calculator — an independent, free utility for averaging time durations and clock times. No ads, no accounts, no data upload.";
 const dateModified = "2026-09-03";
+const datePublished = "2026-08-13";
+
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.average-time-calculator.com/#organization",
+      name: "Average Time Calculator",
+      url: "https://www.average-time-calculator.com/",
+      sameAs: ["https://github.com/jiusongvip/average-time-calculator"],
+      foundingDate: "2026-08-13",
+    },
+    {
+      "@type": "AboutPage",
+      "@id": "https://www.average-time-calculator.com/about/#webpage",
+      url: "https://www.average-time-calculator.com/about/",
+      name: "About - Average Time Calculator",
+      description,
+      inLanguage: "en",
+      datePublished,
+      dateModified,
+      publisher: {
+        "@id": "https://www.average-time-calculator.com/#organization",
+      },
+      mainEntity: {
+        "@id": "https://www.average-time-calculator.com/about/#article",
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://www.average-time-calculator.com/#website",
+      url: "https://www.average-time-calculator.com/",
+      name: "Average Time Calculator",
+      description,
+      inLanguage: "en",
+      publisher: {
+        "@id": "https://www.average-time-calculator.com/#organization",
+      },
+    },
+    {
+      "@type": "TechArticle",
+      "@id": "https://www.average-time-calculator.com/about/#article",
+      headline: "About this calculator",
+      description,
+      inLanguage: "en",
+      datePublished,
+      dateModified,
+      author: {
+        "@id": "https://www.average-time-calculator.com/#organization",
+      },
+      publisher: {
+        "@id": "https://www.average-time-calculator.com/#organization",
+      },
+      mainEntityOfPage: {
+        "@id": "https://www.average-time-calculator.com/about/#webpage",
+      },
+    },
+  ],
+};
 ---
 
-<Layout title={title} description={description} canonical="https://www.average-time-calculator.com/about/">
+<Layout title={title} description={description} canonical="https://www.average-time-calculator.com/about/" schema={schema}>
   <section class="section-pad">
     <div class="page-shell max-w-3xl">
       <p class="text-sm font-semibold uppercase tracking-[0.08em] text-emerald-700">About</p>
@@ -17,12 +77,15 @@ const dateModified = "2026-09-03";
       </p>
       <p class="mt-4 text-sm font-medium text-zinc-500">Built and maintained by the Average Time Calculator team</p>
 
-      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">What this tool does</h2>
+      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">What does this calculator do?</h2>
       <p class="mt-3 text-sm leading-relaxed text-zinc-600">
         This calculator finds the mean of a set of durations or clock times. For durations, each value is converted to seconds, summed, and divided by the count. For clock times, the page uses circular averaging so values such as 23:50 and 00:10 average close to 00:00 instead of 12:00.
       </p>
 
-      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">Editorial principles</h2>
+      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">How are the calculations verified?</h2>
+      <p class="mt-3 text-sm leading-relaxed text-zinc-600">
+        Every formula maps to a standard spreadsheet function or published definition. For example, Google's documentation defines the AVERAGE function as one that "returns the numerical average value in a dataset" (<a href="https://support.google.com/docs/answer/3093615" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">Google Support</a>), which is the arithmetic this tool applies to durations. Clock time mode follows the definition of a circular mean from <a href="https://en.wikipedia.org/wiki/Circular_mean" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">Wikipedia</a>.
+      </p>
       <div class="mt-4 grid gap-4 sm:grid-cols-2">
         <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
           <h3 class="text-base font-semibold text-zinc-950">Free and private</h3>
@@ -42,7 +105,7 @@ const dateModified = "2026-09-03";
         </div>
       </div>
 
-      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">Contact</h2>
+      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">How can I contact the team?</h2>
       <p class="mt-3 text-sm leading-relaxed text-zinc-600">
         Open a GitHub issue to report bugs, request features, or ask about the math. The source code is also on GitHub for anyone to review.
       </p>
@@ -57,7 +120,7 @@ const dateModified = "2026-09-03";
         </a>
       </div>
 
-      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">Maintenance log</h2>
+      <h2 class="mt-12 text-2xl font-semibold tracking-[-0.02em] text-zinc-950">When was this page last updated?</h2>
       <p class="mt-3 text-sm leading-relaxed text-zinc-600">Each update is recorded here so visitors can see the page is actively maintained and reviewed.</p>
       <ul class="mt-6 space-y-3 text-sm leading-relaxed text-zinc-600">
         <li class="flex flex-col gap-1 sm:flex-row sm:gap-4">
