@@ -1346,39 +1346,41 @@ const {
     }
   });
 
-  setFormatOptions(currentMode);
-  if (defaultWeighted) {
-    weightedToggle.checked = true;
-  }
-  if (defaultRunning) {
-    runningToggle.checked = true;
-  }
-  setMode(currentMode);
+  requestAnimationFrame(function () {
+    setFormatOptions(currentMode);
+    if (defaultWeighted) {
+      weightedToggle.checked = true;
+    }
+    if (defaultRunning) {
+      runningToggle.checked = true;
+    }
+    setMode(currentMode);
 
-  if (defaultExample && examples[defaultExample]) {
-    const example = examples[defaultExample];
+    if (defaultExample && examples[defaultExample]) {
+      const example = examples[defaultExample];
 
-    if (example.mode !== currentMode) {
-      currentMode = example.mode;
-      setFormatOptions(currentMode);
-      setMode(currentMode);
+      if (example.mode !== currentMode) {
+        currentMode = example.mode;
+        setFormatOptions(currentMode);
+        setMode(currentMode);
+      }
+
+      textarea.value = example.value;
+      render();
     }
 
-    textarea.value = example.value;
-    render();
-  }
+    const restoredFromHash = restoreFromHash();
 
-  const restoredFromHash = restoreFromHash();
+    if (!restoredFromHash) {
+      const restoredFromQuery = restoreFromQuery();
 
-  if (!restoredFromHash) {
-    const restoredFromQuery = restoreFromQuery();
-
-    if (!restoredFromQuery) {
-      if (persistLocal) {
-        restoreFromLocalStorage();
-      } else {
-        render();
+      if (!restoredFromQuery) {
+        if (persistLocal) {
+          restoreFromLocalStorage();
+        } else {
+          render();
+        }
       }
     }
-  }
+  });
 </script>
