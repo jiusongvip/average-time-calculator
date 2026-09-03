@@ -142,6 +142,7 @@ const schema = {
       "@id": "https://www.average-time-calculator.com/#organization",
       name: "Average Time Calculator",
       url: "https://www.average-time-calculator.com/",
+      sameAs: ["https://github.com/jiusongvip/average-time-calculator"],
       foundingDate: "2026-08-13",
     },
     {
@@ -152,8 +153,8 @@ const schema = {
       description,
       inLanguage: "en",
       datePublished: "2026-08-13",
-      dateModified: "2026-08-17",
-      lastReviewed: "2026-08-17",
+      dateModified: "2026-09-03",
+      lastReviewed: "2026-09-03",
       reviewedBy: {
         "@id": "https://www.average-time-calculator.com/#organization",
       },
@@ -217,7 +218,7 @@ const schema = {
       articleSection: "Average time calculator",
       inLanguage: "en",
       datePublished: "2026-08-13",
-      dateModified: "2026-08-13",
+      dateModified: "2026-09-03",
       author: {
         "@id": "https://www.average-time-calculator.com/#organization",
       },
@@ -1495,26 +1496,50 @@ const schema = {
           References
         </h2>
         <p class="mt-5 max-w-3xl text-base leading-relaxed text-zinc-600">
-          These are the documented functions and concepts behind the formulas on this page.
+          These are the documented functions and concepts behind the formulas on this page. Each formula maps to a published source you can open to verify the math.
         </p>
         <ul class="mt-6 grid gap-3 text-sm leading-relaxed text-zinc-700">
           <li>
             <a href="https://support.google.com/docs/answer/3093615" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
               Google Sheets AVERAGE function
             </a>
-            <span class="text-zinc-500"> - averages a range of time values.</span>
+            <span class="text-zinc-500"> - Google's documentation states that AVERAGE "returns the numerical average value in a dataset, ignoring text." This page reproduces that same arithmetic for time values stored as durations.</span>
           </li>
           <li>
             <a href="https://support.google.com/docs/answer/3094294" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
               Google Sheets SUMPRODUCT function
             </a>
-            <span class="text-zinc-500"> - multiplies and sums weighted values.</span>
+            <span class="text-zinc-500"> - Google's documentation states that SUMPRODUCT "calculates the sum of the products of corresponding entries in two equal-sized arrays." That is exactly the weighted-average math used here.</span>
           </li>
           <li>
             <a href="https://en.wikipedia.org/wiki/Circular_mean" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
-              Circular mean
+              Circular mean (Wikipedia)
             </a>
-            <span class="text-zinc-500"> - averages angles for clock times across midnight.</span>
+            <span class="text-zinc-500"> - Wikipedia describes the circular mean as "a mean of circular quantities" such as clock times, where the 24-hour wrap means 23:50 and 00:10 are close together. This page applies that definition in clock time mode.</span>
+          </li>
+          <li>
+            <a href="https://en.wikipedia.org/wiki/Arithmetic_mean" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
+              Arithmetic mean (Wikipedia)
+            </a>
+            <span class="text-zinc-500"> - Wikipedia defines the arithmetic mean as "the sum of a collection of numbers divided by the count of numbers in the collection," which is the duration-mode formula on this page.</span>
+          </li>
+          <li>
+            <a href="https://en.wikipedia.org/wiki/Weighted_arithmetic_mean" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
+              Weighted arithmetic mean (Wikipedia)
+            </a>
+            <span class="text-zinc-500"> - Wikipedia defines the weighted mean as the mean "in which some elements of the data set carry more weight than others," matching the weighted mode where a time with a larger weight counts more times.</span>
+          </li>
+          <li>
+            <a href="https://en.wikipedia.org/wiki/Median" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
+              Median (Wikipedia)
+            </a>
+            <span class="text-zinc-500"> - Wikipedia defines the median as "the value separating the higher half from the lower half of a data sample," which this page computes to protect results against outliers.</span>
+          </li>
+          <li>
+            <a href="https://en.wikipedia.org/wiki/Standard_deviation" target="_blank" rel="noopener noreferrer" class="font-medium text-emerald-700 hover:underline">
+              Standard deviation (Wikipedia)
+            </a>
+            <span class="text-zinc-500"> - Wikipedia defines standard deviation as "a measure of the amount of variation of a set of values," and the sample formula with n − 1 used here matches the spreadsheet =STDEV() function.</span>
           </li>
         </ul>
       </div>
@@ -1571,6 +1596,10 @@ const schema = {
           </p>
           <ul class="mt-4 space-y-3 text-sm leading-relaxed text-zinc-600">
             <li class="flex flex-col gap-1 sm:flex-row sm:gap-4">
+              <time class="shrink-0 font-mono text-xs font-semibold text-emerald-700">2026-09-03</time>
+              <span>Added sameAs entity links to schema, strengthened references section with authoritative citations, and added Contact and Terms of use sections.</span>
+            </li>
+            <li class="flex flex-col gap-1 sm:flex-row sm:gap-4">
               <time class="shrink-0 font-mono text-xs font-semibold text-emerald-700">2026-08-17</time>
               <span>Added a verification guide, standard deviation and per-value deviation, day-unit input, open-source links, and three new FAQ entries.</span>
             </li>
@@ -1579,6 +1608,50 @@ const schema = {
               <span>Initial public release with duration and clock time modes, weighted and running averages, CSV import and export, and shareable result links.</span>
             </li>
           </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="border-t border-zinc-200 bg-white">
+    <div class="page-shell section-pad">
+      <div class="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
+        <div>
+          <h2 class="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+            Contact
+          </h2>
+          <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
+            Have a question, a correction, or a feature idea? The fastest way to reach the maintainers is by opening a GitHub issue, where every report is public and tracked.
+          </p>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <a href="https://github.com/jiusongvip/average-time-calculator/issues" target="_blank" rel="noopener noreferrer" class="rounded-lg border border-zinc-200 bg-zinc-50 p-6 transition hover:border-emerald-300 hover:bg-emerald-50/60">
+            <h3 class="text-base font-semibold text-zinc-950">Open a GitHub issue</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Report bugs, request features, or ask how the math works. Issues are public, so anyone can see the answer.
+            </p>
+          </a>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">View the source</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              The full page source is on GitHub. You can read the parser, the circular-mean math, and every formula used here.
+            </p>
+            <a href="https://github.com/jiusongvip/average-time-calculator" target="_blank" rel="noopener noreferrer" class="mt-3 inline-block text-sm font-semibold text-emerald-700 hover:underline">
+              github.com/jiusongvip/average-time-calculator →
+            </a>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Corrections policy</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Every calculation is checked against public references. When a report is confirmed, it is fixed and logged in the maintenance log above.
+            </p>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Response time</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Issues are usually answered within a few days. Subscribe to the issue to follow the discussion.
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -1618,6 +1691,47 @@ const schema = {
             <h3 class="text-base font-semibold text-zinc-950">No ads or trackers</h3>
             <p class="mt-2 text-sm leading-relaxed text-zinc-600">
               No accounts, advertising networks, analytics, or cookies.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="terms" class="border-t border-zinc-200 bg-white">
+    <div class="page-shell section-pad">
+      <div class="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
+        <div>
+          <h2 class="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.04em] text-zinc-950 sm:text-4xl">
+            Terms of use
+          </h2>
+          <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-600">
+            The calculator is free to use, and the content on this page is provided as-is for informational purposes.
+          </p>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">No warranty</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Results are provided for informational use. Double-check important figures against your own records or a spreadsheet before relying on them.
+            </p>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">License</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              The source code is available on GitHub. Content on this page may be quoted with attribution, such as a link back to this page.
+            </p>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Changes</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              These terms may be updated as the tool evolves. The maintenance log above records every change to this page.
+            </p>
+          </div>
+          <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
+            <h3 class="text-base font-semibold text-zinc-950">Contact</h3>
+            <p class="mt-2 text-sm leading-relaxed text-zinc-600">
+              Questions about these terms are welcome through the GitHub issue tracker linked in the Contact section.
             </p>
           </div>
         </div>
