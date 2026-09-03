@@ -9,7 +9,6 @@ uploaded or stored.
 
 - Average Time Calculator: https://www.average-time-calculator.com/
 - About: https://www.average-time-calculator.com/about/
-- Contact: https://www.average-time-calculator.com/contact/
 - Privacy Policy: https://www.average-time-calculator.com/privacy/
 - Terms of Use: https://www.average-time-calculator.com/terms/
 
