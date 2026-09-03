@@ -7,10 +7,22 @@ uploaded or stored.
 
 ## Pages
 
-- Average Time Calculator: https://www.average-time-calculator.com/
-- About: https://www.average-time-calculator.com/about/
-- Privacy Policy: https://www.average-time-calculator.com/privacy/
-- Terms of Use: https://www.average-time-calculator.com/terms/
+- [Average Time Calculator](https://www.average-time-calculator.com/): Free tool for averaging time durations and clock times
+- [About](https://www.average-time-calculator.com/about/): About this calculator and how calculations are verified
+- [Privacy Policy](https://www.average-time-calculator.com/privacy/): How your data is handled
+- [Terms of Use](https://www.average-time-calculator.com/terms/): Terms for using this tool
+
+## Sections
+
+- [How to Calculate Average Time](https://www.average-time-calculator.com/#worked-examples): Duration and clock time math with worked examples
+- [Supported Time Formats](https://www.average-time-calculator.com/#supported-formats): All accepted input formats
+- [Average Time by Role and Industry](https://www.average-time-calculator.com/#industry-use-cases): Pace, AHT, and bedtime use cases
+- [Weighted and Running Averages](https://www.average-time-calculator.com/#advanced): Advanced average modes
+- [Average, Min, Max, Median, Range](https://www.average-time-calculator.com/#metrics): Result statistics explained
+- [Precision, Rounding, and Confidence](https://www.average-time-calculator.com/#accuracy): Accuracy guidance
+- [Spreadsheet Formulas](https://www.average-time-calculator.com/#spreadsheet-formulas): Excel and Google Sheets equivalents
+- [Common Mistakes](https://www.average-time-calculator.com/#common-mistakes): Frequent averaging errors
+- [FAQ](https://www.average-time-calculator.com/#faq): Common questions answered
 
 ## Key Concepts
 
