@@ -2,9 +2,9 @@
 import Layout from "../layouts/Layout.astro";
 import AverageTimeTool from "../components/AverageTimeTool.astro";
 
-const title = "Average Time Calculator - Free Duration & Clock Time";
+const title = "Free Average Time Calculator: Duration, Clock Time & Weighted Average";
 const description =
-  "Calculate average time from durations or clock times. Bulk input, weighted & running averages, min/max/median, and CSV export. Midnight-safe and free.";
+  "Calculate average duration, clock time, or weighted average easily. Paste times, get mean, median, and range. Free, private, no sign-up.";
 
 const faqs = [
   {
@@ -190,7 +190,10 @@ const schema = {
 >
   <section class="section-pad pb-20 pt-12 sm:pt-16">
     <div class="page-shell">
-      <AverageTimeTool />
+      <AverageTimeTool showLeadIn />
+      <p class="mt-8 max-w-3xl text-base leading-relaxed text-zinc-700">
+        <strong>Stop calculating averages in spreadsheets.</strong> This tool handles mixed formats, midnight crossings, and weighted data so you get the right number instantly. Use it to find your real average commute, lap time, bedtime, or call handling time.
+      </p>
     </div>
   </section>
 
@@ -668,6 +671,9 @@ const schema = {
         </h2>
         <p class="mt-5 max-w-3xl text-base leading-relaxed text-zinc-600">
           The same calculation appears in different jobs under different names. Choose the mode based on whether your values are elapsed time or points in the day.
+        </p>
+        <p class="mt-4 max-w-3xl text-base leading-relaxed text-zinc-600">
+          Not sure which mode fits your data? Pick your situation from the table below. Each row shows the right <strong>average time calculator</strong> mode and why the supporting statistics matter for your field.
         </p>
       </div>
       <div class="mt-10 overflow-x-auto rounded-lg border border-zinc-200">
